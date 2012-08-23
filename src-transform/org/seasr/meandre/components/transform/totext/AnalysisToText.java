@@ -173,9 +173,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 			ps.println(sHeader);
 		for ( int i=0, iMax=im.getKeyCount() ; i<iMax ; i++ ) {
 			String sToken = im.getKey(i);
-			ps.print(sToken+textSep);
+			ps.print(sToken);
 			for ( int iCounts:im.getValue(i).getValueList() )
-				ps.println(" "+iCounts);
+				ps.println(textSep+iCounts);
 		}
 		ps.println();
 	}
@@ -216,9 +216,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		if ( count<0 ) count = im.getKeyCount()-offset;
 		for ( count-- ; count>=0 ; offset++, count-- ) {
 			String sToken = im.getKey(offset);
-			ps.print(sToken+textSep);
+			ps.print(sToken);
 			for ( int iCounts:im.getValue(offset).getValueList() )
-				ps.print(iCounts);
+				ps.print(textSep+iCounts);
 			ps.println();
 		}
 		ps.println();
@@ -240,9 +240,9 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 		if ( count<0 ) count = dm.getKeyCount()-offset;
 		for ( count-- ; count>=0 ; offset++, count-- ) {
 			String sToken = dm.getKey(offset);
-			ps.print(sToken+textSep);
+			ps.print(sToken);
 			for ( Double dValues:dm.getValue(offset).getValueList() )
-				ps.print(dValues+textSep);
+				ps.print(textSep+dValues);
 			ps.println();
 		}
 		ps.println();

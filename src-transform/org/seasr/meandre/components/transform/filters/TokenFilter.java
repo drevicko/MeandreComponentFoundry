@@ -129,6 +129,14 @@ public class TokenFilter extends AbstractExecutableComponent {
 	protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
 	@ComponentInput(
+			name = Names.PORT_TOKEN_DOUBLE_VALUES,
+			description = "The floating point token values to filter." +
+			"<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap" +
+			"<br>TYPE: java.util.Map<java.lang.String, java.lang.Double>"
+	)
+	protected static final String IN_TOKEN_DOUBLES = Names.PORT_TOKEN_DOUBLE_VALUES;
+
+	@ComponentInput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
 			description = "The tokenized sentences to filter." +
 			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.StringsMap"
@@ -150,6 +158,13 @@ public class TokenFilter extends AbstractExecutableComponent {
 			"<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap"
 	)
 	protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
+
+	@ComponentOutput(
+			name = Names.PORT_TOKEN_DOUBLE_VALUES,
+			description = "The filtered tokenized sentences." +
+			"<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
+	)
+	protected static final String OUT_TOKEN_DOUBLES = Names.PORT_TOKEN_DOUBLE_VALUES;
 
 	@ComponentOutput(
 			name = Names.PORT_TOKENIZED_SENTENCES,
@@ -178,6 +193,14 @@ public class TokenFilter extends AbstractExecutableComponent {
     )
     protected static final String PROP_IGNORE_CASE = "ignore_case";
 
+    @ComponentProperty(
+            name = "treat_as_whitelist",
+            description = "If set to true then the tokens_blacklist is treated as a whitelist instead.",
+            defaultValue = "false"
+    )
+    protected static final String PROP_WHITELIST = "treat_as_whitelist";
+
+    //TODO: implement whitelist version!
 	//--------------------------------------------------------------------------------------------
 
 

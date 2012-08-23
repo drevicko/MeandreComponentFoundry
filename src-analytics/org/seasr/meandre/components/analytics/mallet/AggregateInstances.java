@@ -109,6 +109,7 @@ public class AggregateInstances extends AbstractStreamingExecutableComponent {
             throw new ComponentExecutionException("No stream was detected. This component only works in streaming mode.");
 
         Instance instance = (Instance) cc.getDataComponentFromInput(IN_INSTANCE);
+        console.finer(String.format("adding another instance, size was %d", _instanceList.size()));
         _instanceList.add(instance);
     }
 
@@ -131,6 +132,7 @@ public class AggregateInstances extends AbstractStreamingExecutableComponent {
 
     @Override
     public void endStream() throws Exception {
+        console.fine(String.format("sending instance list of size %d", _instanceList.size()));
     	if (!_instanceList.isEmpty())
     		componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
 

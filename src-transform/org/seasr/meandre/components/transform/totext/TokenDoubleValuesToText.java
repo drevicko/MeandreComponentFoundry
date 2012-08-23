@@ -107,6 +107,8 @@ public class TokenDoubleValuesToText extends AnalysisToText {
 		PrintStream ps = new PrintStream(baos);
 
 		printDoublesMap(ps, tokenValues, this.iCount, this.iOffset);
+//		System.out.println(String.format("TokenDoubleValuesToText: printed %d values making %d chars of output",tokenValues.getKeyCount()-this.iOffset,baos.size()));
+		console.fine(String.format("printed %d values making %d chars of output",tokenValues.getKeyCount()-this.iOffset,baos.size()));
 
 		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
 	}

@@ -56,6 +56,8 @@ import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.Doubles;
+import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
 import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
@@ -234,6 +236,39 @@ public abstract class DataTypeParser {
         if (data instanceof Map) {
             map = (Map<String, Integer>)data;
             if (!(map.values().iterator().next() instanceof Integer))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format!");
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return map;
+    }
+
+    /**
+     * Attempts to convert the given data to a Map<String, Double>
+     *
+     * @param data The data
+     * @return The Map<String, Double>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Double> parseAsStringDoulbeMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, Double> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof DoublesMap)
+            map = BasicDataTypesTools.DoubleMapToMap((DoublesMap)data);
+
+        else
+
+        if (data instanceof Map) {
+            map = (Map<String, Double>)data;
+            if (!(map.values().iterator().next() instanceof Double))
                 throw new UnsupportedDataTypeException("The given map is not in the correct format!");
         }
 
