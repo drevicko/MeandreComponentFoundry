@@ -1,0 +1,38 @@
+53a54,55
+> import org.seasr.datatypes.core.BasicDataTypes.Doubles;
+> import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
+56d57
+< import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
+86a88,99
+> 	 * Creates a Doubles object out of a regular Double.
+> 	 *
+> 	 * @param d The double to use
+> 	 * @return THe new object produced
+> 	 */
+> 	public static Doubles doubleToDoubles( Double d ) {
+> 		org.seasr.datatypes.core.BasicDataTypes.Doubles.Builder res = BasicDataTypes.Doubles.newBuilder();
+> 		res.addValue(d);
+> 		return res.build();
+> 	}
+> 
+> 	/**
+223c236
+<         // Sort it needed
+---
+>         // Sort if needed
+280a294,308
+> 	}
+> 
+> 	/**
+> 	 * Converts a protocol buffer string double map to the equivalent java map
+> 	 *
+> 	 * @param im The double map to convert
+> 	 * @return The converted map
+> 	 */
+> 	public static Map<String,Double> DoubleMapToMap ( DoublesMap im ) {
+> 		Hashtable<String,Double> ht = new Hashtable<String,Double>(im.getValueCount());
+> 
+> 		for ( int i=0,iMax=im.getValueCount() ; i<iMax ; i++ )
+> 			ht.put(im.getKey(i), im.getValue(i).getValue(0));
+> 
+> 		return ht;
