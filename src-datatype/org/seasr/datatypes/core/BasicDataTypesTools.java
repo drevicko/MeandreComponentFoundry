@@ -51,9 +51,10 @@ import java.util.Map.Entry;
 
 import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
+import org.seasr.datatypes.core.BasicDataTypes.Doubles;
+import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
-import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
@@ -80,6 +81,18 @@ public abstract class BasicDataTypesTools {
 	public static Integers integerToIntegers( Integer i ) {
 		org.seasr.datatypes.core.BasicDataTypes.Integers.Builder res = BasicDataTypes.Integers.newBuilder();
 		res.addValue(i);
+		return res.build();
+	}
+
+	/**
+	 * Creates a Doubles object out of a regular Double.
+	 *
+	 * @param d The double to use
+	 * @return THe new object produced
+	 */
+	public static Doubles doubleToDoubles( Double d ) {
+		org.seasr.datatypes.core.BasicDataTypes.Doubles.Builder res = BasicDataTypes.Doubles.newBuilder();
+		res.addValue(d);
 		return res.build();
 	}
 
@@ -220,7 +233,7 @@ public abstract class BasicDataTypesTools {
 		Entry<String, Integer>[] esa  = new Entry[setCnts.size()];
         esa = setCnts.toArray(esa);
 
-        // Sort it needed
+        // Sort if needed
         if ( bOrdered ) {
              Arrays.sort(esa, new Comparator<Entry<String,Integer>>(){
                  public int compare(Entry<String, Integer> o1,Entry<String, Integer> o2) {
@@ -278,6 +291,21 @@ public abstract class BasicDataTypesTools {
 			res.addValue(BasicDataTypes.Doubles.newBuilder().addValue(entry.getValue()));
 		}
 		return res.build();
+	}
+
+	/**
+	 * Converts a protocol buffer string double map to the equivalent java map
+	 *
+	 * @param im The double map to convert
+	 * @return The converted map
+	 */
+	public static Map<String,Double> DoubleMapToMap ( DoublesMap im ) {
+		Hashtable<String,Double> ht = new Hashtable<String,Double>(im.getValueCount());
+
+		for ( int i=0,iMax=im.getValueCount() ; i<iMax ; i++ )
+			ht.put(im.getKey(i), im.getValue(i).getValue(0));
+
+		return ht;
 	}
 
 	/**
