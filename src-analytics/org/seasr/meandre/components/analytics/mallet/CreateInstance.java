@@ -69,7 +69,7 @@ import cc.mallet.types.Instance;
         		"performance of various machine learning algorithms.</p> <p>An instance contains four " +
         		"generic fields of predefined name: 'data', 'target', 'name', and 'source'. " +
         		"'Data' holds the data represented by the instance, 'target' is often a label " +
-        		"associated with the instance, 'name' is a short identifying name for the instance a" +
+        		"associated with the instance, 'name' is a short identifying name for the instance " +
         		"(such as a filename), and 'source' is human-readable source information, (such as the original text).</p>" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )

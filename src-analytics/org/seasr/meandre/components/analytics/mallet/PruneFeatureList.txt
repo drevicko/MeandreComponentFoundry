@@ -1,0 +1,59 @@
+     **** this is a multiple array version:
+//        int[] docLengths = new int[_instanceList.size()];
+//        int maxLength = 0;
+//        int i = 0;
+//
+//        for (Instance instance: _instanceList) {
+//        	Object data = instance.getData();
+//        	if (! (data instanceof FeatureSequence)) 
+//        		throw new ComponentExecutionException("Incorrect data type "+data.getClass()+" in instance list: expected cc.mallet.types.FeatureSequence");
+//        	docLengths[i] = ((FeatureSequence)data).getLength();
+//        	if (maxLength < docLengths[i]) maxLength = docLengths[i];
+//        	i++;
+//        }
+        int[] featureList = new int [inAlphabet.size()]; // XX
+        int[] newFeatures = new int [maxLength]; // XX
+        HashMap<Integer,Double> featureC = new HashMap<Integer,Double>(inAlphabet.size());
+        
+        int nextFreeFeature = 0;  // XX
+        int[] featureCounts = new int [inAlphabet.size()];  // XX
+        Arrays.fill(featureCounts,0);  // XX
+        
+        for (Instance instance : _instanceList) {
+        	FeatureSequence data = (FeatureSequence) instance .getData();
+        	System.arraycopy(data.getFeatures(), 0, newFeatures, 0, data.getLength());
+        	Arrays.sort(newFeatures);
+        	int j = 0;
+        	for (int f : newFeatures ) {
+        		for ( ; j < nextFreeFeature; j++) {  // XX
+        			if (featureList[j] == f) break;  // XX
+        		}  // XX
+        		if (j > nextFreeFeature) nextFreeFeature = j;  // XX
+        		featureList[j] = f;  // XX
+        		featureCounts[j]++;  // XX
+        		if (featureC.containsKey(f)) featureC.put(f, featureC.get(f)+1d);
+        		else featureC.put(f, 0d);
+        		Double c = featureC.get(f);
+        		featureC.put(f, c == null ? 0d : c);
+        	}
+        }
+        
+        
+        
+        
+        **** this is the Map version:
+        
+        HashMap<Integer,Double> featureCounts = new HashMap<Integer,Double>(inAlphabet.size());  //XX
+        
+        assert(inAlphabet.size() == featureCounts.size());
+        double[] counts = new double[featureCounts.size()];
+        for (Map.Entry<Integer, Double> entry : featureCounts.entrySet()) {
+        	counts[entry.getKey()] = entry.getValue();
+        	if (entry.getValue() >= _minFrequency) frequentCounts++;
+        }        
+        
+        
+        
+        ****** an example of finding the max value of a primitive array
+        
+        frequentCounts = Collections.max(Arrays.asList(ArrayUtils.toObject(fc)));
