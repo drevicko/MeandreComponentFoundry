@@ -95,7 +95,7 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = Names.PORT_LOCATION,
-            description = "The URL or file name specifying where the data will be written" +
+            description = "The URL or file name specifying where the data will be written. " +
                 "<br>TYPE: java.net.URI" +
                 "<br>TYPE: java.net.URL" +
                 "<br>TYPE: java.lang.String" +
@@ -119,7 +119,8 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = Names.PORT_LOCATION,
-            description = "The URL or file name containing the written data" +
+            description = "The URL or file name containing the written data. The location can be " +
+            "a full file:/// URL, or an absolute or relative pathname." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_LOCATION = Names.PORT_LOCATION;
@@ -136,7 +137,7 @@ public class WriteFile extends AbstractExecutableComponent {
     @ComponentProperty(
             name = Names.PROP_DEFAULT_FOLDER,
             description = "The folder to write to. If the specified location " +
-            		"is not an absolute path, it will be assumed relative to the " +
+            		"is not valid URL or an absolute path, it will be assumed relative to the " +
             		"published_resources folder.",
             defaultValue = ""
     )
@@ -251,12 +252,14 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	if (componentContext.isFlowAborting() && file != null) {
-    		try {
-    			file.delete();
-    		} catch (Exception e) { }
+    	if (componentContext != null) {
+    		if (componentContext.isFlowAborting() && file != null) {
+    			try {
+    				file.delete();
+    			} catch (Exception e) { }
+    		}
     	}
-
+    	
     	file = null;
     }
 

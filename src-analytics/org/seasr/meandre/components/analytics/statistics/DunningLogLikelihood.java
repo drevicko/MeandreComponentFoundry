@@ -42,9 +42,7 @@
 
 package org.seasr.meandre.components.analytics.statistics;
 
-import java.util.HashMap;
 import java.util.Hashtable;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -124,6 +122,13 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	)
     protected static final String OUT_TOKEN_DOUBLES = Names.PORT_TOKEN_DOUBLE_VALUES;
 
+	@ComponentOutput(
+	        name = Names.PORT_TOKEN_DOUBLE_VALUES+"_2", 
+	        description = "Resulting analysis of dunning loglikelihood." +
+	            "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
+	)
+    protected static final String OUT_TOKEN_SIGNIFICANCE = Names.PORT_TOKEN_DOUBLE_VALUES+"_2";
+
     //--------------------------------------------------------------------------------------------
 
     @Override
@@ -132,27 +137,31 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		Map<String, Number> analysisCounts = new HashMap<String, Number>();
-		Map<String, Number> referenceCounts = new HashMap<String, Number>();
-
-		Map<String, Integer> analysis = DataTypeParser.parseAsStringIntegerMap(
+		Map<String, Number> analysisCounts = DataTypeParser.parseAsStringNumberMap(
 		        cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-		Map<String, Integer> reference = DataTypeParser.parseAsStringIntegerMap(
+		Map<String, Number> referenceCounts = DataTypeParser.parseAsStringNumberMap(
 		        cc.getDataComponentFromInput(IN_REF_TOKEN_COUNTS));
-
-		Set<String> set = analysis.keySet();
-		Iterator<String> iterator = set.iterator();
-		while (iterator.hasNext()) {
-			String str = iterator.next();
-			analysisCounts.put(str, analysis.get(str));
-		}
-
-		set = reference.keySet();
-		iterator = set.iterator();
-		while (iterator.hasNext()) {
-			String str = iterator.next();
-			referenceCounts.put(str, reference.get(str));
-		}
+		
+//		Map<String, Number> analysisCounts = new HashMap<String, Number>();
+//		Map<String, Number> referenceCounts = new HashMap<String, Number>();
+//		Map<String, Integer> analysis = DataTypeParser.parseAsStringIntegerMap(
+//		        cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+//		Map<String, Integer> reference = DataTypeParser.parseAsStringIntegerMap(
+//		        cc.getDataComponentFromInput(IN_REF_TOKEN_COUNTS));
+//
+//		Set<String> set = analysis.keySet();
+//		Iterator<String> iterator = set.iterator();
+//		while (iterator.hasNext()) {
+//			String str = iterator.next();
+//			analysisCounts.put(str, analysis.get(str));
+//		}
+//
+//		set = reference.keySet();
+//		iterator = set.iterator();
+//		while (iterator.hasNext()) {
+//			String str = iterator.next();
+//			referenceCounts.put(str, reference.get(str));
+//		}
 
 		Map<ReverseScoredString, double[]>  results = doDunning(analysisCounts,referenceCounts,2);
 
@@ -174,12 +183,15 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 		}
 		
 		Map<String,Double> outputMapDoubles = new Hashtable<String, Double>();
+		Map<String,Double> significanceMapDoubles = new Hashtable<String, Double>();
 		for (ReverseScoredString key : results.keySet()) {
 			outputMapDoubles.put(key.getString(), new Double(key.getScore()));
+			outputMapDoubles.put(key.getString(), new Double(results.get(key)[6]));
 		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
 		cc.pushDataComponentToOutput(OUT_TOKEN_DOUBLES, BasicDataTypesTools.mapToDoubleMap(outputMapDoubles, false));
+		cc.pushDataComponentToOutput(OUT_TOKEN_SIGNIFICANCE, BasicDataTypesTools.mapToDoubleMap(significanceMapDoubles, false));
 	}
 
     @Override
@@ -215,13 +227,11 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	private Map<ReverseScoredString, double[]> doDunning(Map<String, Number> analysisCounts,
 			Map<String, Number> referenceCounts,int cutoff) {
 		Map<ReverseScoredString, double[]> results;
-		int analysisTotalCount = CountMapUtils
-		.getTotalWordCount(analysisCounts);
+		int analysisTotalCount = CountMapUtils.getTotalWordCount(analysisCounts);
 		int refTotalCount = CountMapUtils.getTotalWordCount(referenceCounts);
 		// Get combined string list.
 
-		Map<String, Number> combinedCounts = CountMapUtils
-		.semiDeepClone(analysisCounts);
+		Map<String, Number> combinedCounts = CountMapUtils.semiDeepClone(analysisCounts);
 		CountMapUtils.addCountMap(combinedCounts, referenceCounts);
 		// Holds results of analysis.
 		// Each unique input string produces

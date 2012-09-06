@@ -70,7 +70,9 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, text, accumulator, string, concatenate",
         description = "This component accumulates multiple text values and pushes them out " +
-        		"as a single concatenated value.",
+        		"as a single concatenated value. When it receives a StreamInitiator, it " +
+        		"accumulates it's inputs until a terminator is received, then pushes the " +
+        		"concatenated text.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TextAccumulator extends AbstractStreamingExecutableComponent {
@@ -100,7 +102,7 @@ public class TextAccumulator extends AbstractStreamingExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            description = "The separator to insert between the text values",
+            description = "The separator to insert between the text values (defaults to a space character)",
             name = Names.PROP_SEPARATOR,
             defaultValue = " "
     )

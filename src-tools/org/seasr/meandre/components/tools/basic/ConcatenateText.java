@@ -71,7 +71,11 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, text, string, concatenate",
-        description = "Concatenates text from multiple inputs",
+        description = "Concatenates text from two inputs. If the " +
+        		"inputs contain multiple strings, they must contain " +
+        		"the same number. In this case, corresponding strings " +
+        		"are concatenated and pushed individually. They are not " +
+        		"wrapped as a stream.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ConcatenateText extends AbstractExecutableComponent {
@@ -113,7 +117,7 @@ public class ConcatenateText extends AbstractExecutableComponent {
 
     @ComponentProperty(
             name = Names.PROP_SEPARATOR,
-            description = "The text to use as a separator when concatenating the texts",
+            description = "The text to use as a separator when concatenating the texts (defaults to an empty string).",
             defaultValue = ""
     )
     protected static final String PROP_SEPARATOR = Names.PROP_SEPARATOR;

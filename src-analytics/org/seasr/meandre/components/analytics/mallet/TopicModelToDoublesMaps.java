@@ -111,6 +111,13 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
     protected static final String OUT_TOPIC_ID = "topic_id";
 
     @ComponentOutput(
+            name = "topic_size",
+            description = "A stream containing the total token count for each topic" +
+                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Strings"
+    )
+    protected static final String OUT_TOPIC_SIZE = "topic_size";
+
+    @ComponentOutput(
             name = "topic_model",
             description = "The topic model (same as input)" +
                 "<br>TYPE: cc.mallet.topics.ParallelTopicModel"
@@ -148,12 +155,13 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
 		if (_wrapStream) {
 		    StreamDelimiter sd = new StreamInitiator(streamId);
 		    cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, sd);
+            cc.pushDataComponentToOutput(OUT_TOPIC_ID, sd);
+            cc.pushDataComponentToOutput(OUT_TOPIC_SIZE, sd);
 		    cc.pushDataComponentToOutput(OUT_TOPIC_DISTRIBUTIONS, sd);
 		}
 
         int numTopics = topicModel.getNumTopics();
         Alphabet alphabet = topicModel.getAlphabet();
-        cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
 
         Map<String,Double> topicWordDistribution = new HashMap<String,Double>();
 
@@ -161,7 +169,7 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
         for (int topic = 0; topic < numTopics; topic++) {
             TreeSet<IDSorter> sortedWords = topicSortedWords.get(topic);
             Iterator<IDSorter> iterator = sortedWords.iterator();
-            int topicTotalCount = 0;
+            Double topicTotalCount = 0d;
             
             topicWordDistribution.clear();
             while (iterator.hasNext()) {
@@ -181,12 +189,17 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
             console.fine(String.format("for topic %d found %d words",topic,topicWordDistribution.size()));
             
             cc.pushDataComponentToOutput(OUT_TOPIC_ID, intToStrings(topic));
+            cc.pushDataComponentToOutput(OUT_TOPIC_SIZE, BasicDataTypesTools.doubleToDoubles(topicTotalCount));
             cc.pushDataComponentToOutput(OUT_TOPIC_DISTRIBUTIONS, BasicDataTypesTools.mapToDoubleMap(topicWordDistribution, false));
         }
+        
+        cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
 
 		if (_wrapStream) {
 		    StreamDelimiter sd = new StreamTerminator(streamId);
 		    cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, sd);
+            cc.pushDataComponentToOutput(OUT_TOPIC_ID, sd);
+            cc.pushDataComponentToOutput(OUT_TOPIC_SIZE, sd);
 		    cc.pushDataComponentToOutput(OUT_TOPIC_DISTRIBUTIONS, sd);
 		}
     }

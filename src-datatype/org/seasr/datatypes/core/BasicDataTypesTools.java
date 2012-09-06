@@ -51,13 +51,18 @@ import java.util.Map.Entry;
 
 import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
-import org.seasr.datatypes.core.BasicDataTypes.Doubles;
-import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.Longs;
+import org.seasr.datatypes.core.BasicDataTypes.LongsMap;
+import org.seasr.datatypes.core.BasicDataTypes.Floats;
+import org.seasr.datatypes.core.BasicDataTypes.FloatsMap;
+import org.seasr.datatypes.core.BasicDataTypes.Doubles;
+import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
 import org.seasr.datatypes.core.BasicDataTypes.StringsArray;
 import org.seasr.datatypes.core.BasicDataTypes.StringsMap;
+import org.seasr.datatypes.core.exceptions.UnsupportedDataTypeException;
 
 import com.google.protobuf.ByteString;
 
@@ -71,6 +76,8 @@ import com.google.protobuf.ByteString;
  *
  */
 public abstract class BasicDataTypesTools {
+
+	enum NumberTypes {INTEGER, LONG, FLOAT, DOUBLE};
 
 	/**
 	 * Creates a Integers object out of a regular Integer.
@@ -265,6 +272,134 @@ public abstract class BasicDataTypesTools {
 	}
 
 	/**
+	 * Converts a protocol buffer string integer/long/float/double map to a java Number map
+	 *
+	 * @param im The numerical map to convert
+	 * @return The converted map
+	 */
+	public static Map<String,Number> NumberMapToMap ( Object im ) throws UnsupportedDataTypeException {
+		NumberTypes type;
+		int size;
+		
+		if (im instanceof IntegersMap) {
+			type = NumberTypes.INTEGER;
+			size = ((IntegersMap)im).getKeyCount();
+		} else
+		if (im instanceof LongsMap) {
+			type = NumberTypes.LONG;
+			size = ((LongsMap)im).getKeyCount();
+		}  else
+		if (im instanceof FloatsMap) {
+			type = NumberTypes.FLOAT;
+			size = ((FloatsMap)im).getKeyCount();
+		}  else
+		if (im instanceof DoublesMap) {
+			type = NumberTypes.DOUBLE ;
+			size = ((DoublesMap)im).getKeyCount();
+		}  else
+			throw new UnsupportedDataTypeException(im.getClass().getName());
+		
+		Hashtable<String,Number> ht = new Hashtable<String,Number>(size);
+
+		for ( int i=0,iMax=size ; i<iMax ; i++ )
+			switch (type) {
+			case INTEGER: ht.put (((IntegersMap)im).getKey(i), (Number) ((IntegersMap)im).getValue(i).getValue(0));
+			case LONG: ht.put (((LongsMap)im).getKey(i), (Number) ((LongsMap)im).getValue(i).getValue(0));
+			case FLOAT: ht.put (((FloatsMap)im).getKey(i), (Number) ((FloatsMap)im).getValue(i).getValue(0));
+			case DOUBLE: ht.put (((DoublesMap)im).getKey(i), (Number) ((DoublesMap)im).getValue(i).getValue(0));
+			}
+		return ht;
+	}
+
+	/**
+	 * Builds the long map and sorts it if needed.
+	 *
+	 * @param htCounts The token counts
+	 * @param bOrdered Should the counts be ordered?
+	 * @return The LongMap
+	 */
+	@SuppressWarnings("unchecked")
+	public static LongsMap mapToLongMap(Map<String, Long> htCounts, boolean bOrdered) {
+		Set<Entry<String, Long>> setCnts = htCounts.entrySet();
+		Entry<String, Long>[] esa  = new Entry[setCnts.size()];
+        esa = setCnts.toArray(esa);
+
+        // Sort if needed
+        if ( bOrdered ) {
+             Arrays.sort(esa, new Comparator<Entry<String,Long>>(){
+                 public int compare(Entry<String, Long> o1,Entry<String, Long> o2) {
+                    return (int) (o2.getValue()-o1.getValue());
+                 }} );
+        }
+
+        org.seasr.datatypes.core.BasicDataTypes.LongsMap.Builder res = BasicDataTypes.LongsMap.newBuilder();
+		for ( Entry<String, Long> entry:esa ) {
+			res.addKey(entry.getKey());
+			res.addValue(BasicDataTypes.Longs.newBuilder().addValue(entry.getValue()));
+		}
+		return res.build();
+	}
+
+	/**
+	 * Converts a protocol buffer string long map to the equivalent java map
+	 *
+	 * @param im The long map to convert
+	 * @return The converted map
+	 */
+	public static Map<String,Long> LongMapToMap ( LongsMap im ) {
+		Hashtable<String,Long> ht = new Hashtable<String,Long>(im.getValueCount());
+
+		for ( int i=0,iMax=im.getValueCount() ; i<iMax ; i++ )
+			ht.put(im.getKey(i), im.getValue(i).getValue(0));
+
+		return ht;
+	}
+
+	/**
+	 * Builds the float map and sorts it if needed.
+	 *
+	 * @param htCounts The token counts
+	 * @param bOrdered Should the counts be ordered?
+	 * @return The FloatMap
+	 */
+	@SuppressWarnings("unchecked")
+	public static FloatsMap mapToFloatMap(Map<String, Float> htCounts, boolean bOrdered) {
+		Set<Entry<String, Float>> setCnts = htCounts.entrySet();
+		Entry<String, Float>[] esa  = new Entry[setCnts.size()];
+        esa = setCnts.toArray(esa);
+
+        // Sort if needed
+        if ( bOrdered ) {
+             Arrays.sort(esa, new Comparator<Entry<String,Float>>(){
+                 public int compare(Entry<String, Float> o1,Entry<String, Float> o2) {
+                    return (int) (o2.getValue()-o1.getValue());
+                 }} );
+        }
+
+        org.seasr.datatypes.core.BasicDataTypes.FloatsMap.Builder res = BasicDataTypes.FloatsMap.newBuilder();
+		for ( Entry<String, Float> entry:esa ) {
+			res.addKey(entry.getKey());
+			res.addValue(BasicDataTypes.Floats.newBuilder().addValue(entry.getValue()));
+		}
+		return res.build();
+	}
+
+	/**
+	 * Converts a protocol buffer string float map to the equivalent java map
+	 *
+	 * @param im The float map to convert
+	 * @return The converted map
+	 */
+	public static Map<String,Float> FloatMapToMap ( FloatsMap im ) {
+		Hashtable<String,Float> ht = new Hashtable<String,Float>(im.getValueCount());
+
+		for ( int i=0,iMax=im.getValueCount() ; i<iMax ; i++ )
+			ht.put(im.getKey(i), im.getValue(i).getValue(0));
+
+		return ht;
+	}
+
+	/**
 	 * Builds the doubles map and sorts it if needed.
 	 *
 	 * @param htDoubles The token values as doubles
@@ -384,7 +519,7 @@ public abstract class BasicDataTypesTools {
      *
      * @param htCounts The token counts
      * @param bOrdered Should the counts be ordered?
-     * @return The IntegerMap
+     * @return The ByteMap
      */
     public static BytesMap mapToByteMap(Map<String, byte[]> htBytes) {
         org.seasr.datatypes.core.BasicDataTypes.BytesMap.Builder res = BasicDataTypes.BytesMap.newBuilder();

@@ -56,6 +56,10 @@ import org.seasr.datatypes.core.BasicDataTypes.Bytes;
 import org.seasr.datatypes.core.BasicDataTypes.BytesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Integers;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
+import org.seasr.datatypes.core.BasicDataTypes.Longs;
+import org.seasr.datatypes.core.BasicDataTypes.LongsMap;
+import org.seasr.datatypes.core.BasicDataTypes.Floats;
+import org.seasr.datatypes.core.BasicDataTypes.FloatsMap;
 import org.seasr.datatypes.core.BasicDataTypes.Doubles;
 import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypes.Strings;
@@ -210,6 +214,39 @@ public abstract class DataTypeParser {
             throw new UnsupportedDataTypeException(data.getClass().getName());
 
         return uri;
+    }
+
+    /**
+     * Attempts to convert the given data to a Map<String, Number>
+     *
+     * @param data The data
+     * @return The Map<String, Number>
+     * @throws UnsupportedDataTypeException Thrown if the data is in an unsupported format
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<String, Number> parseAsStringNumberMap(Object data) throws UnsupportedDataTypeException {
+        Map<String, Number> map;
+
+        if (data == null)
+            map = null;
+
+        else
+
+        if (data instanceof IntegersMap || data instanceof LongsMap || data instanceof FloatsMap || data instanceof DoublesMap)
+            map = BasicDataTypesTools.NumberMapToMap(data);
+
+        else
+        	
+        if (data instanceof Map) {
+            map = (Map<String, Number>)data;
+            if (!(map.values().iterator().next() instanceof Number))
+                throw new UnsupportedDataTypeException("The given map is not in the correct format! - Numbers expected!");
+        }
+
+        else
+            throw new UnsupportedDataTypeException(data.getClass().getName());
+
+        return map;
     }
 
     /**

@@ -88,19 +88,12 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
 
     @ComponentInput(
             name = "mallet_instance_list",
-            description = "The Mallet instance" +
-                "<br>TYPE: cc.mallet.types.Instance"
+            description = "The Mallet instance list" +
+                "<br>TYPE: cc.mallet.types.InstanceList"
     )
     protected static final String IN_INSTANCE_LIST = "mallet_instance_list";
 
-//    @ComponentInput(
-//            name = Names.PORT_TOKEN_COUNTS,
-//            description = "The token counts to filter." +
-//                          "<br>TYPE: org.seasr.datatypes.BasicDataTypes.IntegersMap" +
-//                          "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>"
-//    )
-//    protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
-
+    
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -110,7 +103,7 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
                 "<br>TYPE: cc.mallet.types.InstanceList"
     )
     protected static final String OUT_INSTANCE_LIST = "mallet_instance_list";
-
+    
 
     //----------------------------- PROPERTIES ---------------------------------------------------
 
@@ -124,7 +117,6 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    protected InstanceList _instanceList;
 	protected Integer _minFrequency;
 
 
@@ -139,40 +131,39 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        _instanceList = (InstanceList) cc.getDataComponentFromInput(IN_INSTANCE_LIST);
+    	InstanceList _instanceList = (InstanceList) cc.getDataComponentFromInput(IN_INSTANCE_LIST);
         
         Alphabet inAlphabet = _instanceList.getAlphabet();
         
         // first count the features
-        int[] fc = new int[inAlphabet.size()];
-        Arrays.fill(fc,0);
+        int[] iFrequentCounts = new int[inAlphabet.size()];
+        Arrays.fill(iFrequentCounts,0);
         for (Instance instance : _instanceList)
         	for (int f : ((FeatureSequence)instance.getData()).getFeatures() ) 
-        		fc[f]++;
+        		iFrequentCounts[f]++;
         
         // then convert to doubles and find out how many frequent ones
         int frequentCounts = 0;
-        double[] dfc = new double[inAlphabet.size()];
+        double[] dFrequentCounts = new double[inAlphabet.size()];
         int i=0;
-        for (int f:fc) {
-        	if (f >= _minFrequency) frequentCounts ++;
-        	dfc[i++]=(double)f;
+        for (int count:iFrequentCounts) {
+        	if (count >= _minFrequency) frequentCounts ++;
+        	dFrequentCounts[i++]=(double)count;
         }
         
         // now prune the FeatureSequences
         Alphabet newAlphabet = new Alphabet(frequentCounts);
         for (Instance instance : _instanceList) {
         	FeatureSequence seq = (FeatureSequence) instance.getData();
-        	seq.prune(dfc, newAlphabet, _minFrequency);
+        	seq.prune(dFrequentCounts, newAlphabet, _minFrequency);
         }
+
+		cc.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
         
-        
-        InstanceList _outInstanceList = new InstanceList()
     }
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-        _instanceList = null;
     }
 
     //--------------------------------------------------------------------------------------------

@@ -42,26 +42,22 @@
 
 package org.seasr.meandre.components.analytics.psychometrics;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
 import java.util.Hashtable;
 import java.util.Map;
 
 import org.meandre.annotations.Component;
-import org.meandre.annotations.ComponentInput;
-import org.meandre.annotations.ComponentOutput;
-import org.meandre.annotations.ComponentProperty;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
+import org.meandre.annotations.ComponentInput;
+import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
-import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-
-import cc.mallet.topics.ParallelTopicModel;
 
 import drevicko.psycholingua.WordClassDictionary;
 import drevicko.psycholingua.WordCounter.WordClassFloatCount;
@@ -106,6 +102,12 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
     protected static final String OUT_LIWC_SCORES = "LIWC_scores";
 
 	@ComponentOutput(
+	        name = "topic_size",
+	        description = "The calculated LIWC scores." +
+                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
+	)
+    protected static final String OUT_SIZE = "topic_size";
+	@ComponentOutput(
 	        name = "topic_word_distributions",
 	        description = "The word distribution that was input." +
 	            "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
@@ -121,18 +123,24 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_LIWC_DICT = Names.PROP_FILENAME;
 
-	protected String _dictFileName;
+	//--------------------------------------------------------------------------------------------
 
+	protected String _dictFileName;
+	private WordClassDictionary dict;
+	
 	//--------------------------------------------------------------------------------------------
 
 	@Override
+	public void initializeCallBack(ComponentContextProperties ccp)
+			throws Exception {
+        _dictFileName = getPropertyOrDieTrying(PROP_LIWC_DICT, ccp);
+        dict = new WordClassDictionary(_dictFileName);
+	}
+
+	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    DoublesMap tokenValues = (DoublesMap)cc.getDataComponentFromInput(INPUT_WORD_DISTRIBUTION);
-//        ParallelTopicModel topicModel = (ParallelTopicModel) cc.getDataComponentFromInput(IN_TOPIC_MODEL);
-	    
-        _dictFileName = getPropertyOrDieTrying(PROP_LIWC_DICT, cc);
+	    DoublesMap tokenValues = (DoublesMap)cc.getDataComponentFromInput(INPUT_WORD_DISTRIBUTION);	    
         
-	    WordClassDictionary dict = new WordClassDictionary(_dictFileName);
 		WordClassFloatCount[] LIWC_Values = dict.countFloatClasses(BasicDataTypesTools.DoubleMapToMap(tokenValues));
 //		System.out.print("LIWCOnTokenDoubleValues:");
 		Map<String, Double> out = new Hashtable<String, Double>();
@@ -147,13 +155,6 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 		
 		cc.pushDataComponentToOutput(OUT_LIWC_SCORES, BasicDataTypesTools.mapToDoubleMap(out, false));
 		cc.pushDataComponentToOutput(OUT_WORD_DISTRIBUTION, tokenValues);
-	}
-
-	@Override
-	public void initializeCallBack(ComponentContextProperties ccp)
-			throws Exception {
-		// FIXME Auto-generated method stub
-		
 	}
 
 	@Override

@@ -88,7 +88,7 @@ public class TokensToFeatureSequence extends AbstractStreamingExecutableComponen
 
     @ComponentOutput(
             name = "mallet_feature_sequence",
-            description = "A Mallet feature sequence containing the data from the tuples" +
+            description = "A Mallet feature sequence containing the data from the input tokens" +
                 "<br>TYPE: cc.mallet.types.FeatureSequence"
     )
     protected static final String OUT_FEATURE_SEQ = "mallet_feature_sequence";

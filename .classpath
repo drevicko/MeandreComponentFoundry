@@ -136,7 +136,7 @@
 	<classpathentry kind="lib" path="lib/velocity-1.7-dep.jar"/>
 	<classpathentry kind="lib" path="src-gwt/war/WEB-INF/lib/gwt-servlet.jar"/>
 	<classpathentry kind="lib" path="src-gwt/war/WEB-INF/lib/smartgwt.jar"/>
-	<classpathentry kind="lib" path="lib/drevicko-LIWC.jar"/>
+	<classpathentry kind="lib" path="lib/drevicko-LIWC.jar" sourcepath="/psycholingua/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/seasr-commons-1.4.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
