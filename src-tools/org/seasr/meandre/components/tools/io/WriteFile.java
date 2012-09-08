@@ -137,7 +137,7 @@ public class WriteFile extends AbstractExecutableComponent {
     @ComponentProperty(
             name = Names.PROP_DEFAULT_FOLDER,
             description = "The folder to write to. If the specified location " +
-            		"is not valid URL or an absolute path, it will be assumed relative to the " +
+            		"is not a valid URL or an absolute path, it will be assumed relative to the " +
             		"published_resources folder.",
             defaultValue = ""
     )

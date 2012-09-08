@@ -124,7 +124,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        name = Names.PORT_TOKEN_DOUBLE_VALUES+"_2", 
-	        description = "Resulting analysis of dunning loglikelihood." +
+	        description = "Statistical significance of analysis results." +
 	            "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
 	)
     protected static final String OUT_TOKEN_SIGNIFICANCE = Names.PORT_TOKEN_DOUBLE_VALUES+"_2";
@@ -142,13 +142,6 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 		Map<String, Number> referenceCounts = DataTypeParser.parseAsStringNumberMap(
 		        cc.getDataComponentFromInput(IN_REF_TOKEN_COUNTS));
 		
-//		Map<String, Number> analysisCounts = new HashMap<String, Number>();
-//		Map<String, Number> referenceCounts = new HashMap<String, Number>();
-//		Map<String, Integer> analysis = DataTypeParser.parseAsStringIntegerMap(
-//		        cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-//		Map<String, Integer> reference = DataTypeParser.parseAsStringIntegerMap(
-//		        cc.getDataComponentFromInput(IN_REF_TOKEN_COUNTS));
-//
 //		Set<String> set = analysis.keySet();
 //		Iterator<String> iterator = set.iterator();
 //		while (iterator.hasNext()) {
