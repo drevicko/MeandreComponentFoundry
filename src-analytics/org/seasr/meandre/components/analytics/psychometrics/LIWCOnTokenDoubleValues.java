@@ -76,7 +76,7 @@ import drevicko.psycholingua.WordCounter.WordClassFloatCount;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "token count, text, convert, double, token value",
+		tags = "token count, text, convert, double, token value, LIWC, #ANALYTICS",
 		description = "Given a collection of word frequecies (as doubles), this component calculates " +
 				      "LIWC scores for the stream.",
 		dependency = {"protobuf-java-2.2.0.jar,drevicko-LIWC.jar"}
