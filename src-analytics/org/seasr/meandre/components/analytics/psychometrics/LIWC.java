@@ -152,10 +152,12 @@ public class LIWC extends AbstractExecutableComponent {
 		
 //		System.out.println();
 //		System.out.println(String.format("LIWCOnTokenDoubleValues: found %d classes",out.size()));
-		console.fine(String.format("LIWC counter found %d classes from %d tokens",out.size(),out.get(WordClassDictionary.CLASS_TOTAL_WORDS)));
+		Integer count = out.get(WordClassDictionary.CLASS_TOTAL_WORDS);
+		if (count == null) count = -1;
+		console.fine(String.format("LIWC counter found %d classes from %d tokens",out.size(),count));
 		
 		cc.pushDataComponentToOutput(OUT_LIWC_SCORES, BasicDataTypesTools.mapToIntegerMap(out, false));
-		cc.pushDataComponentToOutput(OUT_WORD_COUNT, BasicDataTypesTools.integerToIntegers(out.get(WordClassDictionary.CLASS_TOTAL_WORDS)));
+		cc.pushDataComponentToOutput(OUT_WORD_COUNT, BasicDataTypesTools.integerToIntegers(count));
 	}
 
 	@Override
