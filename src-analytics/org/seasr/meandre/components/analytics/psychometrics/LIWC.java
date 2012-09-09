@@ -110,7 +110,7 @@ public class LIWC extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        name = "word_count",
-	        description = "The calculated LIWC counts." +
+	        description = "The total token count." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Integers"
 	)
     protected static final String OUT_WORD_COUNT = "word_count";
@@ -152,10 +152,10 @@ public class LIWC extends AbstractExecutableComponent {
 		
 //		System.out.println();
 //		System.out.println(String.format("LIWCOnTokenDoubleValues: found %d classes",out.size()));
-		console.fine(String.format("LIWC counter found %d classes from LIWC_Values array of %d",out.size(),LIWC_Values.length));
+		console.fine(String.format("LIWC counter found %d classes from %d tokens",out.size(),out.get(WordClassDictionary.CLASS_TOTAL_WORDS)));
 		
 		cc.pushDataComponentToOutput(OUT_LIWC_SCORES, BasicDataTypesTools.mapToIntegerMap(out, false));
-		cc.pushDataComponentToOutput(OUT_WORD_COUNT, BasicDataTypesTools.integerToIntegers(tokens.length));
+		cc.pushDataComponentToOutput(OUT_WORD_COUNT, BasicDataTypesTools.integerToIntegers(out.get(WordClassDictionary.CLASS_TOTAL_WORDS)));
 	}
 
 	@Override
