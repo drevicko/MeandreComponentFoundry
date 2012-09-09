@@ -76,7 +76,7 @@ import org.seasr.meandre.support.generic.io.IOUtils;
         "2) iFrameViewer.vm allows the frame size to be set as pixels for column for each HTML document "+
             "and thus allows as much scrolling as needed",
         name = "Frame Maker",
-        tags = "html, frames",
+        tags = "html, frames, #vis",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "protobuf-java-2.2.0.jar" },
