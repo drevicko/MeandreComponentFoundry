@@ -45,6 +45,7 @@ package org.seasr.meandre.components.tools.io;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -71,6 +72,8 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
+
+import cc.mallet.types.InstanceList;
 
 /**
  * Writes the given data to a file
@@ -219,6 +222,7 @@ public class WriteFile extends AbstractExecutableComponent {
         }
 
         console.fine(String.format("Writing file %s", file));
+        System.out.println("Writing file "+file);
 
         // Write the data to file
         FileOutputStream fos = new FileOutputStream(file, appendData);
@@ -230,6 +234,14 @@ public class WriteFile extends AbstractExecutableComponent {
 
 	        if (inData instanceof Document)
 	            DOMUtils.writeXML((Document) inData, fos, outputProperties);
+
+	        else
+
+	        if (inData instanceof InstanceList) {
+	        	ObjectOutputStream ois = new ObjectOutputStream (fos);
+	        	ois.writeObject(this);
+	        	ois.close();
+	        }
 
 	        else
 	            fos.write(DataTypeParser.parseAsString(inData)[0].getBytes("UTF-8"));
