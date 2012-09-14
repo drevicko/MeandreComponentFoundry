@@ -178,8 +178,8 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 		Map<String,Double> outputMapDoubles = new Hashtable<String, Double>();
 		Map<String,Double> significanceMapDoubles = new Hashtable<String, Double>();
 		for (ReverseScoredString key : results.keySet()) {
-			outputMapDoubles.put(key.getString(), new Double(key.getScore()));
-			outputMapDoubles.put(key.getString(), new Double(results.get(key)[6]));
+//			outputMapDoubles.put(key.getString(), new Double(key.getScore()));
+			outputMapDoubles.put(key.getString(), new Double(results.get(key)[6])*((Double)(analysisCounts.get(key.getString())) > (Double)(referenceCounts.get(key.getString()))?1:-1));
 		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));

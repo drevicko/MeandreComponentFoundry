@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src-analytics"/>
-	<classpathentry kind="src" path="src-support"/>
+	<classpathentry excluding="org/monkproject/utils/math/distributions/Beta.java" kind="src" path="src-support"/>
 	<classpathentry kind="src" path="src-apps"/>
 	<classpathentry kind="src" path="src-evernote"/>
 	<classpathentry kind="src" path="src-GoogleDocs"/>
