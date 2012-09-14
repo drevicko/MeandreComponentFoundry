@@ -303,10 +303,10 @@ public abstract class BasicDataTypesTools {
 
 		for ( int i=0,iMax=size ; i<iMax ; i++ )
 			switch (type) {
-			case INTEGER: ht.put (((IntegersMap)im).getKey(i), (Number) ((IntegersMap)im).getValue(i).getValue(0));
-			case LONG: ht.put (((LongsMap)im).getKey(i), (Number) ((LongsMap)im).getValue(i).getValue(0));
-			case FLOAT: ht.put (((FloatsMap)im).getKey(i), (Number) ((FloatsMap)im).getValue(i).getValue(0));
-			case DOUBLE: ht.put (((DoublesMap)im).getKey(i), (Number) ((DoublesMap)im).getValue(i).getValue(0));
+			case INTEGER: ht.put (((IntegersMap)im).getKey(i), (Number) ((IntegersMap)im).getValue(i).getValue(0)); break;
+			case LONG: ht.put (((LongsMap)im).getKey(i), (Number) ((LongsMap)im).getValue(i).getValue(0)); break;
+			case FLOAT: ht.put (((FloatsMap)im).getKey(i), (Number) ((FloatsMap)im).getValue(i).getValue(0)); break;
+			case DOUBLE: ht.put (((DoublesMap)im).getKey(i), (Number) ((DoublesMap)im).getValue(i).getValue(0)); break;
 			}
 		return ht;
 	}
