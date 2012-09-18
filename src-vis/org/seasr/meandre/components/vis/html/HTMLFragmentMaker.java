@@ -47,6 +47,7 @@ import java.io.FileOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
@@ -109,7 +110,8 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
 
     @ComponentProperty(
             defaultValue = "text/plain",
-            description = "Specifies the MIME encoding of the input data.",
+            description = "Specifies the MIME encoding of the input data. Currently supported " +
+            "MIME types are 'text/...' and 'image/...'.",
             name = Names.PROP_ENCODING
     )
     protected static final String PROP_ENCODING = Names.PROP_ENCODING;
@@ -185,30 +187,34 @@ public class HTMLFragmentMaker extends AbstractExecutableComponent {
         else
 
         if (_mimeType.startsWith("image")) {
-        	String htmlImageFragment = null;
-        	if (!_generateInlineImages) {
-        		byte[] imgData = (byte[])data;
-        		File imgFile = File.createTempFile("img_", ".png", new File(cc.getPublicResourcesDirectory()));
-        		FileOutputStream fos = new FileOutputStream(imgFile);
-        		fos.write(imgData);
-        		fos.close();
-        		_tmpFiles.add(imgFile);
-        		StringBuilder sb = new StringBuilder();
-                sb.append("<img");
-                if (_id != null)
-                    sb.append(" id='").append(_id).append("'");
-                if (_css != null)
-                    sb.append(" style='").append(_css).append("'");
-                sb.append(" src='").append("/public/resources/").append(imgFile.getName()).append("'");
-                sb.append("/>");
-                htmlImageFragment = sb.toString();
-        	} else {
-        		htmlImageFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+        	try {
+        		String htmlImageFragment = null;
+        		if (!_generateInlineImages) {
+        			byte[] imgData = (byte[])data;
+        			File imgFile = File.createTempFile("img_", ".png", new File(cc.getPublicResourcesDirectory()));
+        			FileOutputStream fos = new FileOutputStream(imgFile);
+        			fos.write(imgData);
+        			fos.close();
+        			_tmpFiles.add(imgFile);
+        			StringBuilder sb = new StringBuilder();
+        			sb.append("<img");
+        			if (_id != null)
+        				sb.append(" id='").append(_id).append("'");
+        			if (_css != null)
+        				sb.append(" style='").append(_css).append("'");
+        			sb.append(" src='").append("/public/resources/").append(imgFile.getName()).append("'");
+        			sb.append("/>");
+        			htmlImageFragment = sb.toString();
+        		} else {
+        			htmlImageFragment = org.seasr.meandre.support.generic.html.HTMLFragmentMaker.makeHtmlImageFragment((byte[])data, _mimeType, _id, _css);
+        		}
+        		if (_generateCompletePage)
+        			htmlImageFragment = String.format("<html>%n<head></head>%n<body>%n%s%n</body>%n</html>", htmlImageFragment);
+        		console.fine("Pushing out image fragment: " + htmlImageFragment);
+        		cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlImageFragment));
+        	} catch (ClassCastException e) {
+        		throw(new DataFormatException(String.format("Cannot cast %s arriving at input %s as byte[] image data. Perhaps the encoding should be 'text'?", data.getClass(), IN_RAW_DATA)) );
         	}
-            if (_generateCompletePage)
-            	htmlImageFragment = String.format("<html>%n<head></head>%n<body>%n%s%n</body>%n</html>", htmlImageFragment);
-            console.fine("Pushing out image fragment: " + htmlImageFragment);
-            cc.pushDataComponentToOutput(OUT_HTML, BasicDataTypesTools.stringToStrings(htmlImageFragment));
         }
 
         else

@@ -90,12 +90,15 @@ public class TokenDoubleValuesToText extends AnalysisToText {
     //------------------------------ PROPERTIES --------------------------------------------------
 
 	@ComponentProperty(
-			name = Names.PROP_MESSAGE,
-			description = "The header to use. ",
-		    defaultValue = "tokens,values"
+			name = "header",
+			description = "The csv header row. " +
+					"A comma-separated list of attribute names. The commas will be replaced " +
+					"by the separator specified in the " + PROP_TEXT_SEPARATOR + " property. " +
+					"Defaults to 'tokens,counts'. If this property is empty, " +
+					"no header will be used.",
+			defaultValue = "tokens,counts"
 	)
-	protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
-
+	protected static final String PROP_HEADER = "header";
 
 	//--------------------------------------------------------------------------------------------
 
