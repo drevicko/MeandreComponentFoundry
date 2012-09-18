@@ -50,6 +50,7 @@ import java.util.TreeMap;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.monkproject.utils.CountMapUtils;
@@ -110,7 +111,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        name = Names.PORT_TOKEN_COUNTS,
-	        description = "Resulting analysis of dunning loglikelihood." +
+	        description = "Resulting analysis of dunning loglikelihood (rounded to integer values)." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
 	)
     protected static final String OUT_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
@@ -129,10 +130,33 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	)
     protected static final String OUT_TOKEN_SIGNIFICANCE = Names.PORT_TOKEN_DOUBLE_VALUES+"_2";
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            name = "signed_ints",
+            description = "Provide signed integer output? If so, negative values represent " +
+            		"under-representation of a token relative to the reference text.",
+            defaultValue = "true"
+    )
+    protected static final String PROP_SIGNED_INTS = "signed_ints";
+
+    @ComponentProperty(
+            name = "signed_doubles",
+            description = "Provide signed floating point output? If so, negative values represent " +
+            		"under-representation of a token relative to the reference text.",
+            defaultValue = "true"
+    )
+    protected static final String PROP_SIGNED_DOUBLES = "signed_doubles";
+
     //--------------------------------------------------------------------------------------------
 
+    Boolean _signedInts = true;
+    Boolean _signedDoubles = true;
+    
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    	_signedInts  = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SIGNED_INTS, ccp));
+    	_signedDoubles  = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SIGNED_DOUBLES, ccp));
     }
 
 	@Override
@@ -171,11 +195,11 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 			int sign =  results.get(key)[SAMPLE_PERCENT_INDEX] >= results.get(key)[REFERE_PERCENT_INDEX] ? 1 : -1;
 			double score = key.getScore();
 			
-			outputMapDoubles.put(key.getString(), new Double(score)*sign);
+			outputMapDoubles.put(key.getString(), new Double(score)*(_signedDoubles ? sign : 1));
 			significanceMapDoubles.put(key.getString(), new Double(results.get(key)[SIGNIFICANCE_INDEX]));
 			
 //			if (min > 1) //apply score directly
-				outputMap.put(key.getString(), new Integer((int)(score*sign)));
+				outputMap.put(key.getString(), new Integer((int)(score*(_signedInts ? sign : 1))));
 //			else //scale score
 //				outputMap.put(key.getString(), new Integer((int)(score/min)));
 
