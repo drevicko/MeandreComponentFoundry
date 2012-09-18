@@ -158,28 +158,31 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 
 		Map<ReverseScoredString, double[]>  results = doDunning(analysisCounts,referenceCounts,2);
 
-		double min = Double.MAX_VALUE;
-		for (ReverseScoredString key : results.keySet()) {
-			double score = key.getScore();
-			min = (min<score) ? min : score;
-		}
+//		double min = Double.MAX_VALUE;
+//		for (ReverseScoredString key : results.keySet()) {
+//			double score = key.getScore();
+//			min = (min<score) ? min : score;
+//		}
 
 		Map<String, Integer> outputMap = new Hashtable<String, Integer>();
-		for (ReverseScoredString key : results.keySet()) {
-			double score = key.getScore();
-			if (min > 1) //apply score directly
-				outputMap.put(key.getString(), new Integer((int)score));
-			else //scale score
-				outputMap.put(key.getString(), new Integer((int)(score/min)));
-
-			console.fine(String.format("%s\t%s\t%s", key.getString(), score, (int)score));
-		}
-		
 		Map<String,Double> outputMapDoubles = new Hashtable<String, Double>();
 		Map<String,Double> significanceMapDoubles = new Hashtable<String, Double>();
 		for (ReverseScoredString key : results.keySet()) {
-//			outputMapDoubles.put(key.getString(), new Double(key.getScore()));
-			outputMapDoubles.put(key.getString(), new Double(results.get(key)[6])*((Double)(analysisCounts.get(key.getString())) > (Double)(referenceCounts.get(key.getString()))?1:-1));
+			int sign =  results.get(key)[SAMPLE_PERCENT_INDEX] >= results.get(key)[REFERE_PERCENT_INDEX] ? 1 : -1;
+			double score = key.getScore();
+			
+			outputMapDoubles.put(key.getString(), new Double(score)*sign);
+			significanceMapDoubles.put(key.getString(), new Double(results.get(key)[SIGNIFICANCE_INDEX]));
+			
+//			if (min > 1) //apply score directly
+				outputMap.put(key.getString(), new Integer((int)(score*sign)));
+//			else //scale score
+//				outputMap.put(key.getString(), new Integer((int)(score/min)));
+
+			console.finer(String.format("%s\t%s\t%s\t%s", key.getString(), score, (int)score,sign));
+		}
+		
+		for (ReverseScoredString key : results.keySet()) {
 		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
@@ -252,6 +255,12 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 			}
 			// Compute frequency statistics
 			// including Dunning's log-likelihood.
+//			(0) Count of word/lemma appearance in sample.
+//			(1) Percent of word/lemma appearance in sample.
+//			(2) Count of word/lemma appearance in reference.
+//			(3) Percent of word/lemma appearance in reference.
+//			(4) Log-likelihood measure.
+//			(5) Significance of log-likelihood.
 			double[] freqAnal = doFreq(stringToAnalyze, stringCount.intValue(),analysisTotalCount, refCount, refTotalCount);
 
 			// Save results for later reporting.
@@ -265,6 +274,12 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 		return results;
 	}
 
+	static int SAMPLE_COUNT_INDEX = 0;
+	static int SAMPLE_PERCENT_INDEX = 1;
+	static int REFERE_COUNT_INDEX = 2;
+	static int REFERE_PERCENT_INDEX = 3;
+	static int LOG_LIKLIHOOD_INDEX = 4;
+	static int SIGNIFICANCE_INDEX = 5;
 
 	/**
 	 *
@@ -291,9 +306,9 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 				analysisCount, refCount, analysisTotalCount, refTotalCount,
 				false);
 		// Convert percents to parts per 10,000.
-		freqAnal[1] = freqAnal[1] * 100.0D;
-		freqAnal[3] = freqAnal[3] * 100.0D;
-		freqAnal[6]=Math.pow(2.0D, ArithUtils.asinh(freqAnal[4]));
+//		freqAnal[SAMPLE_PERCENT_INDEX] = freqAnal[SAMPLE_PERCENT_INDEX] * 100.0D;
+//		freqAnal[REFERE_PERCENT_INDEX] = freqAnal[REFERE_PERCENT_INDEX] * 100.0D;
+		freqAnal[6]=Math.pow(2.0D, ArithUtils.asinh(freqAnal[LOG_LIKLIHOOD_INDEX]));
 		return freqAnal;
 	}
 
