@@ -84,32 +84,22 @@ import cc.mallet.types.InstanceList;
  */
 
 @Component(
-        name = "Write To File",
-        creator = "Boris Capitanu",
+        name = "Stream To File",
+        creator = "Ian Wood",
         baseURL = "meandre://seasr.org/components/foundry/",
-        firingPolicy = FiringPolicy.all,
+        firingPolicy = FiringPolicy.any,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#OUTPUT, io, file, write, bytes",
         description = "This component writes the given data to a file. Objects of type byte[] " +
         		"are written as is. Objects of type org.w3c.dom.Document are written as xml files. " +
-        		"If " + WriteFile.PROP_SERIALIZE_DATA + "is set to 'true', Objects that implement " +
+        		"If " + StreamToFile.PROP_SERIALIZE_DATA + "is set to 'true', Objects that implement " +
         		"java.io.Serializable are written as serialised data.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class WriteFile extends AbstractExecutableComponent {
+public class StreamToFile extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
-
-    @ComponentInput(
-            name = Names.PORT_LOCATION,
-            description = "The URL or file name specifying where the data will be written. " +
-                "<br>TYPE: java.net.URI" +
-                "<br>TYPE: java.net.URL" +
-                "<br>TYPE: java.lang.String" +
-                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
-    )
-    protected static final String IN_LOCATION = Names.PORT_LOCATION;
 
     @ComponentInput(
             name = "data",
@@ -153,6 +143,15 @@ public class WriteFile extends AbstractExecutableComponent {
     protected static final String PROP_DEFAULT_FOLDER = Names.PROP_DEFAULT_FOLDER;
 
     @ComponentProperty(
+            name = Names.PROP_LOCATION,
+            description = "The file name to write to. If the specified location " +
+            		"is not a valid URL or an absolute path, it will be assumed relative to the " +
+            		"published_resources folder.",
+            defaultValue = ""
+    )
+    protected static final String PROP_LOCATION = Names.PROP_LOCATION;
+
+    @ComponentProperty(
             name = Names.PROP_APPEND_TIMESTAMP,
             description = "Append the current timestamp to the file specified in the location?",
             defaultValue = "false"
@@ -176,16 +175,18 @@ public class WriteFile extends AbstractExecutableComponent {
     //--------------------------------------------------------------------------------------------
 
 
-    private String defaultFolder, publicResourcesDir;
+    private String defaultFolder, publicResourcesDir, location;
     private boolean appendTimestamp, appendData, _serializeOutput;
     private Properties outputProperties;
     private File file = null;
+    FileOutputStream fos = null;
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         defaultFolder = getPropertyOrDieTrying(PROP_DEFAULT_FOLDER, true, false, ccp);
+        location = getPropertyOrDieTrying(PROP_LOCATION, true, false, ccp);
         if (defaultFolder.length() == 0)
             defaultFolder = ccp.getPublicResourcesDirectory();
         else
@@ -205,13 +206,7 @@ public class WriteFile extends AbstractExecutableComponent {
         outputProperties.setProperty(OutputKeys.INDENT, "yes");
         outputProperties.setProperty("{http://xml.apache.org/xslt}indent-amount", "2");
         outputProperties.setProperty(OutputKeys.ENCODING, "UTF-8");
-    }
-
-    @Override
-    public void executeCallBack(ComponentContext cc) throws Exception {
-        String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
-        Object inData = cc.getDataComponentFromInput(IN_DATA);
-
+        
         file = getLocation(location, defaultFolder);
         File parentDir = file.getParentFile();
 
@@ -238,9 +233,17 @@ public class WriteFile extends AbstractExecutableComponent {
         console.fine(String.format("Writing file %s", file));
         System.out.println("Writing file "+file);
 
+        fos = new FileOutputStream(file, appendData);
+        
+    }
+
+    @Override
+    public void executeCallBack(ComponentContext cc) throws Exception {
+//        String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
+        Object inData = cc.getDataComponentFromInput(IN_DATA);
+
         // Write the data to file
-        FileOutputStream fos = new FileOutputStream(file, appendData);
-        try {
+//        try {
 	        if (inData instanceof Serializable && _serializeOutput) {
 	        	ObjectOutputStream ois = new ObjectOutputStream (fos);
 	        	ois.writeObject(inData);
@@ -257,14 +260,17 @@ public class WriteFile extends AbstractExecutableComponent {
 	        if (inData instanceof Document)
 	            DOMUtils.writeXML((Document) inData, fos, outputProperties);
 
-	        else {
-	        	for (String s : DataTypeParser.parseAsString(inData)) 
+	        else 
+	        	for (String s : DataTypeParser.parseAsString(inData)) {
 	        		fos.write(s.getBytes("UTF-8"));
-	        }
-	        }
-        finally {
-        	fos.close();
-        }
+	        		fos.write(' ');
+	        	}
+	        fos.write('\n');
+	        fos.flush();
+//	    }
+//        finally {
+//        	fos.close();
+//        }
 
         if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
             String publicLoc = file.getAbsolutePath().substring(publicResourcesDir.length());
@@ -280,13 +286,14 @@ public class WriteFile extends AbstractExecutableComponent {
 
     @Override
     public void disposeCallBack(ComponentContextProperties ccp) throws Exception {
-    	if (componentContext != null) {
-    		if (componentContext.isFlowAborting() && file != null) {
-    			try {
-    				file.delete();
-    			} catch (Exception e) { }
-    		}
-    	}
+//    	if (componentContext != null) {
+//    		if (componentContext.isFlowAborting() && file != null) {
+//    			try {
+//    				file.delete();
+//    			} catch (Exception e) { }
+//    		}
+//    	}
+    	fos.close();
     	
     	file = null;
     }
