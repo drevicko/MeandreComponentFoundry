@@ -42,9 +42,6 @@
 
 package org.seasr.meandre.components.transform.text;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -61,14 +58,14 @@ import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 /**
- * @author Boris Capitanu
+ * @author Ian Wood
  */
 
 @Component(
-        creator = "Boris Capitanu",
-        description = "Performs find and replace on text using regular expressions",
+        creator = "Ian Wood",
+        description = "Changes to lower case except for words in ALL CAPS. ",
         name = "Text Case Munger",
-        tags = "#TRANSFORM, text, remove, replace",
+        tags = "#TRANSFORM, text, remove, replace, case",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
@@ -78,7 +75,7 @@ public class TextCaseMunger extends AbstractExecutableComponent {
 	//------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            description = "The text to clean or replace" +
+            description = "The text to change case." +
                           "<br>TYPE: java.lang.String" +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
                           "<br>TYPE: byte[]" +
@@ -91,7 +88,7 @@ public class TextCaseMunger extends AbstractExecutableComponent {
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
-            description = "The cleaned or replaced text" +
+            description = "The processed text." +
                           "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings",
             name = Names.PORT_TEXT
     )
@@ -99,99 +96,29 @@ public class TextCaseMunger extends AbstractExecutableComponent {
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
+    static final String MIXED_CASE_PATTERN = "\\w*[a-z]+[A-Z]+\\w*|\\w*[A-Z]+[a-z]+\\w*";
 	@ComponentProperty(
-	        description = "The regular expression to find the matched substring. " +
-            	          "For example, if specifying the regular expression as 'push' and " +
-            	          "the replacement as 'pushing', then the sequence of " +
-            	          "characters 'push' contained in any word is substituted with 'pushing'. " +
-            	          "Additionally, capturing groups can be used and referenced in the replacement string as " +
-            	          "$1 for the first capturing group, $2 for second, and so on.",
+	        description = "Optional regular expression to find mixed case words. " +
+            	          "If this property is left blank, the pattern '" + MIXED_CASE_PATTERN + "' " +
+            	          "is used. " +
+            	          "Note that in this case, the underscore character '_' is treated as part of a word.",
             name = Names.PROP_FIND,
             defaultValue = ""
 	)
 	protected static final String PROP_FIND = Names.PROP_FIND;
 
-	@ComponentProperty(
-	        description = "The replacement to substitute the matched substring found by find. " +
-	                      "If the replacement string needs to contain the literals $ and \\ then " +
-	                      "they should be escaped because they have special meaning. For example, as part of the replacement " +
-	                      "string one can use '$1' to refer to the first capturing group defined in the regular expression " +
-	                      "for find, $2 for the second, and so on.  If the literal '$1' is desired, then it should be escaped as '\\$1'.",
-            name = Names.PROP_REPLACE,
-            defaultValue = ""
-	)
-	protected static final String PROP_REPLACE = Names.PROP_REPLACE;
-
-	@ComponentProperty(
-	        description = "The regular expression to find the matched substring.",
-            name = Names.PROP_FIND_2,
-            defaultValue = ""
-	)
-	protected static final String PROP_FIND_2 = Names.PROP_FIND_2;
-
-	@ComponentProperty(
-	        description = "The replacement to substitute the matched substring found by find2.",
-            name = Names.PROP_REPLACE_2,
-            defaultValue = ""
-	)
-	protected static final String PROP_REPLACE_2 = Names.PROP_REPLACE_2;
-
-	@ComponentProperty(
-	        description = "The regular expression to find the matched substring.",
-            name = Names.PROP_FIND_3,
-            defaultValue = ""
-	)
-	protected static final String PROP_FIND_3 = Names.PROP_FIND_3;
-
-	@ComponentProperty(
-	        description = "The replacement to substitute the matched substring found by find3.",
-            name = Names.PROP_REPLACE_3,
-            defaultValue = ""
-	)
-	protected static final String PROP_REPLACE_3 = Names.PROP_REPLACE_3;
-
-	@ComponentProperty(
-	        description = "The regular expression to find the matched substring.",
-            name = Names.PROP_FIND_4,
-            defaultValue = ""
-	)
-	protected static final String PROP_FIND_4 = Names.PROP_FIND_4;
-
-	@ComponentProperty(
-	        description = "The replacement to substitute the matched substring found by find4.",
-            name = Names.PROP_REPLACE_4,
-            defaultValue = ""
-	)
-	protected static final String PROP_REPLACE_4 = Names.PROP_REPLACE_4;
-
 	//--------------------------------------------------------------------------------------------
-
-
-	private final Map<Pattern,String> replacements = new LinkedHashMap<Pattern,String>();
-
-
+	
+	Pattern mixedCaseFinder;
+	
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-	    String find = getPropertyOrDieTrying(PROP_FIND, false, false, ccp);
-	    if (find.length() > 0)
-	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE, false, false, ccp));
-
-	    find = getPropertyOrDieTrying(PROP_FIND_2, false, false, ccp);
-	    if (find.length() > 0)
-	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_2, false, false, ccp));
-
-	    find = getPropertyOrDieTrying(PROP_FIND_3, false, false, ccp);
-	    if (find.length() > 0)
-	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_3, false, false, ccp));
-
-	    find = getPropertyOrDieTrying(PROP_FIND_4, false, false, ccp);
-	    if (find.length() > 0)
-	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_4, false, false, ccp));
-
-	    if (replacements.size() == 0)
-	        console.warning("No find/replace regular expressions have been set. No action will be taken on the input text.");
+		String newCasePattern = getPropertyOrDieTrying(PROP_FIND, false, false, ccp);
+		if (newCasePattern.length() == 0) 
+			newCasePattern = MIXED_CASE_PATTERN;
+		mixedCaseFinder = Pattern.compile(newCasePattern);
 	}
 
 	@Override
@@ -199,7 +126,6 @@ public class TextCaseMunger extends AbstractExecutableComponent {
 		String[] input = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT));
 		String[] output = new String[input.length];
 
-		Pattern mixedCaseFinder = Pattern.compile("\\w*[a-z]+[A-Z]+\\w*|\\w*[A-Z]+[a-z]+\\w*");
 		for (int i = 0, iMax = input.length; i < iMax; i++) {
 		    String text = input[i];
 		    

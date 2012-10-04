@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.analytics.mallet;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -102,11 +103,22 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
             defaultValue = "10"
     )
     protected static final String PROP_MIN_FREQENCY = "min_freqency";
-    
+
+    @ComponentProperty(
+            name = "remove_empty",
+            description = "Remove empty instances from the instance list after pruning. Instances that were " +
+            		"empty before pruning are removed also.",
+            defaultValue = "true"
+    )
+    protected static final String PROP_REMOVE_EMPTY = "remove_empty";
+  
     //--------------------------------------------------------------------------------------------
 
 
 	protected Integer _minFrequency;
+
+
+	private boolean _removeEmpty;
 
 
     //--------------------------------------------------------------------------------------------
@@ -116,6 +128,8 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
         String minFrequency = getPropertyOrDieTrying(PROP_MIN_FREQENCY, ccp);
         //use getPropertyOrDieTrying(propName, true, false, context) if we're ok with empty minFrequency
         _minFrequency = minFrequency.length() > 0 ? Integer.parseInt(minFrequency) : 0;
+        _removeEmpty  = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, ccp));
+        console.config(String.format("removing words occuring < %d; removing empty instances %b", _minFrequency, _removeEmpty ));
     }
 
     @Override
@@ -141,10 +155,18 @@ public class PruneFeatureInstances extends AbstractExecutableComponent {
         }
         
         // now prune the FeatureSequences
+        ArrayList<Instance> remove = new ArrayList<Instance>();
         Alphabet newAlphabet = new Alphabet(frequentCounts);
         for (Instance instance : _instanceList) {
         	FeatureSequence seq = (FeatureSequence) instance.getData();
         	seq.prune(dFrequentCounts, newAlphabet, _minFrequency);
+        	if (_removeEmpty && seq.getLength() == 0) {
+        		remove.add(instance);
+        	}
+        }
+        console.fine(String.format("removing %d instances", remove.size()));
+        for (Instance instance : remove) {
+        	_instanceList.remove(instance);
         }
 
 		cc.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);

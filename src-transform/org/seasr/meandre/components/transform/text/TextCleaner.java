@@ -66,7 +66,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Boris Capitanu",
-        description = "Performs find and replace on text using regular expressions",
+        description = "Performs find and replace on text using regular expressions. " +
+        		"The replacements are performed in order, so that the first replacements " +
+        		"may effect what subsequent finds find.",
         name = "Text Cleaner",
         tags = "#TRANSFORM, text, remove, replace",
         rights = Licenses.UofINCSA,
