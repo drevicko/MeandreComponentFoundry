@@ -299,16 +299,17 @@ public class WriteFile extends AbstractExecutableComponent {
      * @param location The location; can be a full file:/// URL, or an absolute or relative pathname
      * @param defaultFolder The folder to use as base for relatively specified pathnames, or null to use current folder
      * @return The File reference to the location
-     * @throws MalformedURLException
-     * @throws URISyntaxException
+     * @throws Exception 
      */
-    protected File getLocation(String location, String defaultFolder) throws MalformedURLException, URISyntaxException {
+    protected File getLocation(String location, String defaultFolder) throws Exception {
         // Check if the location is a fully-specified URL
         URL locationURL;
         try {
             locationURL = new URI(location).toURL();
         }
-        catch (IllegalArgumentException e) {
+        catch (Exception e) { // URISyntaxException MalformedURLException
+        	if (e.getClass() != IllegalArgumentException.class && e.getClass() != URISyntaxException.class && e.getClass() != MalformedURLException.class ) 
+        		throw e;
             // Not a fully-specified URL, check if absolute location
             if (location.startsWith(File.separator) || location.startsWith(":" + File.separator, 1))
                 locationURL = new File(location).toURI().toURL();
