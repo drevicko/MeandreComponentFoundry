@@ -48,6 +48,7 @@ import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
+import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamDelimiter;
@@ -101,20 +102,36 @@ public class TokenizedSentencesSplitter extends AbstractStreamingExecutableCompo
     )
     protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
+    //----------------------------- PROPERTIES ---------------------------------------------------
+
+    @ComponentProperty(
+            name = Names.PROP_WRAP_STREAM,
+            description = "Should the output be wrapped as a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
+
     //--------------------------------------------------------------------------------------------
 
+    protected boolean _wrapStream;
+
+    //--------------------------------------------------------------------------------------------
+    
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         StringsMap tokenizedSentences = (StringsMap) cc.getDataComponentFromInput(IN_TOKENIZED_SENTENCES);
 
-        StreamDelimiter sd = new StreamInitiator(streamId);
-        cc.pushDataComponentToOutput(OUT_SENTENCES, sd);
-        cc.pushDataComponentToOutput(OUT_TOKENS, sd);
+        if (_wrapStream) {
+        	StreamInitiator sd = new StreamInitiator(streamId);
+        	cc.pushDataComponentToOutput(OUT_SENTENCES, sd);
+        	cc.pushDataComponentToOutput(OUT_TOKENS, sd);
+        }
 
         for (int i = 0, iMax = tokenizedSentences.getKeyCount(); i < iMax; i++) {
             String sentence = tokenizedSentences.getKey(i);
@@ -124,9 +141,12 @@ public class TokenizedSentencesSplitter extends AbstractStreamingExecutableCompo
             cc.pushDataComponentToOutput(OUT_TOKENS, tokens);
         }
 
-        sd = new StreamTerminator(streamId);
-        cc.pushDataComponentToOutput(OUT_SENTENCES, sd);
-        cc.pushDataComponentToOutput(OUT_TOKENS, sd);
+
+        if (_wrapStream) {
+        	StreamTerminator sd = new StreamTerminator(streamId);
+        	cc.pushDataComponentToOutput(OUT_SENTENCES, sd);
+        	cc.pushDataComponentToOutput(OUT_TOKENS, sd);
+        }
     }
 
     @Override

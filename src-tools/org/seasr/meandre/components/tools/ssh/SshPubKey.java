@@ -160,6 +160,7 @@ public class SshPubKey extends AbstractExecutableComponent {
 		while((line=reader.readLine())!=null)
 			buf.append(line).append("\n");
 		String privateKey = buf.toString();
+		reader.close();
 
 		SshPrivateKeyFile spkf = SshPrivateKeyFile.parse(
 				privateKey.getBytes());
@@ -172,18 +173,18 @@ public class SshPubKey extends AbstractExecutableComponent {
 
 			if(command!=null && command.length()!=0) {
 				SessionChannelClient session = ssh.openSessionChannel();
-				session.executeCommand(command+"\n");
+				session.executeCommand(command);
 				InputStream in = session.getInputStream();
 				byte buffer[] = new byte[255];
 				int read;
 				buf.delete(0, buf.length());
 				while((read = in.read(buffer)) > 0) {
 					String out = new String(buffer, 0, read);
-					buf.append(out).append("\n");
+					buf.append(out);
 					//console.info(out);
 				}
 				session.close();
-				console.info(buf.toString());
+				console.fine(buf.toString());
 				cc.pushDataComponentToOutput(
 						OUT_TEXT, 
 						BasicDataTypesTools.stringToStrings(buf.toString()));

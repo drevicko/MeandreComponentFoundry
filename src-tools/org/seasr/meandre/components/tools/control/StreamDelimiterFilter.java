@@ -64,7 +64,10 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
 
 @Component(
         creator = "Boris Capitanu",
-        description = "This component filters out some or all stream delimiters",
+        description = "This component filters out some or all stream delimiters. The " +
+        		AbstractStreamingExecutableComponent.PROP_STREAM_ID + " property for " +
+        		"this component accepts a comma separated list of (integer) id's. If " +
+        		"no id is specified, all stream delimeters are filtered.",
         name = "Stream Delimiter Filter",
         tags = "#CONTROL, filter, delimiter",
         rights = Licenses.UofINCSA,

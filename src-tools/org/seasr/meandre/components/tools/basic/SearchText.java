@@ -128,10 +128,18 @@ public class SearchText extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
+    protected static final String PROP_WRAP_TEXTS = "wrap-individual-texts";
+    @ComponentProperty(
+            name = PROP_WRAP_TEXTS,
+            description = "Should each found text be wrapped as a stream individually?" +
+            		"Overrides "+PROP_WRAP_STREAM,
+            defaultValue = "false"
+    )
     //--------------------------------------------------------------------------------------------
 
 
     protected boolean _wrapStream;
+    protected boolean _wrapTexts;
 
 	/** The regular expression */
 	protected Pattern _regexp;
@@ -144,7 +152,8 @@ public class SearchText extends AbstractStreamingExecutableComponent {
 	    super.initializeCallBack(ccp);
 
 		_regexp = Pattern.compile(getPropertyOrDieTrying(PROP_EXPRESSION, false, true, ccp));
-        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+        _wrapTexts = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_TEXTS, ccp));
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp)) && !_wrapTexts;
 	}
 
 	@Override
@@ -174,11 +183,28 @@ public class SearchText extends AbstractStreamingExecutableComponent {
                 String matchText = matcher.groupCount() > 0 ? matcher.group(1) : matcher.group();
                 if (matchText == null) continue;
 
+                if (_wrapTexts) {
+        		    StreamDelimiter sd = new StreamInitiator(streamId);
+        		    cc.pushDataComponentToOutput(OUT_MATCHED_TEXT, sd);
+                }
     			componentContext.pushDataComponentToOutput(OUT_MATCHED_TEXT, BasicDataTypesTools.stringToStrings(matchText));
+                if (_wrapTexts) {
+        		    StreamDelimiter sd = new StreamTerminator(streamId);
+        		    cc.pushDataComponentToOutput(OUT_MATCHED_TEXT, sd);
+                }
     		}
 
-    		if (!found)
-    		    componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+    		if (!found) {
+                if (_wrapTexts) {
+        		    StreamDelimiter sd = new StreamInitiator(streamId);
+        		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
+                }
+    			componentContext.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(text));
+                if (_wrapTexts) {
+        		    StreamDelimiter sd = new StreamTerminator(streamId);
+        		    cc.pushDataComponentToOutput(OUT_TEXT, sd);
+                }
+    		}
 		}
 
 		if (_wrapStream) {

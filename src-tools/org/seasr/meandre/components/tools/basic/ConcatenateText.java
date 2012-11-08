@@ -75,7 +75,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         		"inputs contain multiple strings, they must contain " +
         		"the same number. In this case, corresponding strings " +
         		"are concatenated and pushed individually. They are not " +
-        		"wrapped as a stream.",
+        		"wrapped as a stream. Each input is used only once, and " +
+        		"stream delimeters must appear simultaneously - to append " +
+        		"the same string to many inputs, use the Text Cleaner component.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class ConcatenateText extends AbstractExecutableComponent {

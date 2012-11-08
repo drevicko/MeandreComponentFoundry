@@ -63,7 +63,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 @Component(
         creator = "Ian Wood",
-        description = "Changes to lower case except for words in ALL CAPS. ",
+        description = "Changes text to lower case except for words in ALL CAPS. ",
         name = "Text Case Munger",
         tags = "#TRANSFORM, text, remove, replace, case",
         rights = Licenses.UofINCSA,

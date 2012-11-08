@@ -95,6 +95,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	        description = "Token counts for the analysis set of documents." +
     	        "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
     	        "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
+		//TODO: This could actually be NumbersMap... 
     	        //TODO: I've corrected this type, it was: org.seasr.datatypes.BasicDataTypes.IntegersMap
 	)
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
@@ -104,6 +105,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 	        description = "Token counts for the reference set of documents." +
     	        "<br>TYPE: java.util.Map<java.lang.String, java.lang.Integer>" +
     	        "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.IntegersMap"
+		//TODO: This could actually be NumbersMap... 
 	)
 	protected static final String IN_REF_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS_REFERENCE;
 

@@ -66,7 +66,8 @@ import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableCompone
         		"through it and outputs the current count. If the component is set " +
         		"to act on a particular stream (by setting '_stream_id' appropriately) " +
         		"then at the end of the stream the component will output a total " +
-        		"count of all elements in that stream.",
+        		"count of all elements in that stream and the count will be reset " +
+        		"to 0 (it is also reset on receiving a stream initiator for it's '_stream_id').",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class InputCounter extends AbstractStreamingExecutableComponent {

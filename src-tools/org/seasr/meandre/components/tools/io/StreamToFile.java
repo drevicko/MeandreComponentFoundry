@@ -91,10 +91,10 @@ import cc.mallet.types.InstanceList;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#OUTPUT, io, file, write, bytes",
-        description = "This component writes the given data to a file. Objects of type byte[] " +
+        description = "This component writes any data it receives to a file. Objects of type byte[] " +
         		"are written as is. Objects of type org.w3c.dom.Document are written as xml files. " +
         		"If " + StreamToFile.PROP_SERIALIZE_DATA + "is set to 'true', Objects that implement " +
-        		"java.io.Serializable are written as serialised data.",
+        		"java.io.Serializable are written as serialised data. Streams are ignored.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class StreamToFile extends AbstractExecutableComponent {

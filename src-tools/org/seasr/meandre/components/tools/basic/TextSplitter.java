@@ -103,10 +103,18 @@ public class TextSplitter extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
+    protected static final String PROP_WRAP_TEXTS = "wrap-individual-texts";
+    @ComponentProperty(
+            name = PROP_WRAP_TEXTS,
+            description = "Should each text be wrapped as a stream individually?" +
+            		"Overrides "+PROP_WRAP_STREAM,
+            defaultValue = "false"
+    )
     //--------------------------------------------------------------------------------------------
 
 
     protected boolean _wrapStream;
+    protected boolean _wrapTexts;
 
 
     //--------------------------------------------------------------------------------------------
@@ -115,7 +123,9 @@ public class TextSplitter extends AbstractStreamingExecutableComponent {
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
 
-        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+        _wrapTexts = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_TEXTS, ccp));
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp)) && !_wrapTexts;
+        
     }
 
     @Override
@@ -125,8 +135,11 @@ public class TextSplitter extends AbstractStreamingExecutableComponent {
         if (_wrapStream)
             cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
 
-        for (String s : BasicDataTypesTools.stringsToStringArray(input))
+        for (String s : BasicDataTypesTools.stringsToStringArray(input)) {
+            if (_wrapTexts) cc.pushDataComponentToOutput(OUT_TEXT, new StreamInitiator(streamId));
             cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(s));
+            if (_wrapTexts) cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));
+        }
 
         if (_wrapStream)
             cc.pushDataComponentToOutput(OUT_TEXT, new StreamTerminator(streamId));

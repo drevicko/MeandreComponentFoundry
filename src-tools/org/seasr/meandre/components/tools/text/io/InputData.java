@@ -106,7 +106,7 @@ public class InputData extends AbstractGWTWebUIComponent {
 
     @ComponentOutput(
             name = "label",
-            description = "URL(s), file name(s) or 'text_input' input by the user." +
+            description = "URL(s) or file name(s) input by the user, or 'text_input' if the user entered text." +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_LABEL = "label";

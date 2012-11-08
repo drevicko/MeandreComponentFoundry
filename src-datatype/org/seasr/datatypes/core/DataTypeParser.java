@@ -74,6 +74,7 @@ import com.hp.hpl.jena.rdf.model.Model;
 
 /**
  * @author Boris Capitanu
+ * @author Ian Wood
  */
 public abstract class DataTypeParser {
     /**
