@@ -74,6 +74,8 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 
+import com.ziclix.python.sql.Procedure;
+
 import cc.mallet.types.InstanceList;
 
 /**
@@ -299,25 +301,29 @@ public class WriteFile extends AbstractExecutableComponent {
      * @param location The location; can be a full file:/// URL, or an absolute or relative pathname
      * @param defaultFolder The folder to use as base for relatively specified pathnames, or null to use current folder
      * @return The File reference to the location
-     * @throws Exception 
      */
-    protected File getLocation(String location, String defaultFolder) throws Exception {
+    protected File getLocation(String location, String defaultFolder) {
         // Check if the location is a fully-specified URL
-        URL locationURL;
+        boolean found = false;
+        File processedLocation = null;
         try {
-            locationURL = new URI(location).toURL();
+            processedLocation = new File(new URI(location).toURL().toURI());
+            found = true;
         }
-        catch (Exception e) { // URISyntaxException MalformedURLException
-        	if (e.getClass() != IllegalArgumentException.class && e.getClass() != URISyntaxException.class && e.getClass() != MalformedURLException.class ) 
-        		throw e;
-            // Not a fully-specified URL, check if absolute location
-            if (location.startsWith(File.separator) || location.startsWith(":" + File.separator, 1))
-                locationURL = new File(location).toURI().toURL();
-            else
-                // Relative location
-                locationURL = new File(defaultFolder, location).toURI().toURL();
+        catch (IllegalArgumentException e) {}
+        catch (MalformedURLException e) {}
+        catch (URISyntaxException e) {}
+        
+        // in java 7, we could do this in a single catch() clause, but to save mess, I've used a flag
+        if (!found) {
+        	// Not a fully-specified URL, check if absolute location
+        	if (location.startsWith(File.separator) || location.startsWith(":" + File.separator, 1))
+        		processedLocation = new File(location);
+        	else
+        		// Relative location
+        		processedLocation = new File(defaultFolder, location);
         }
-
-        return new File(locationURL.toURI());
+        
+        return processedLocation;
     }
 }

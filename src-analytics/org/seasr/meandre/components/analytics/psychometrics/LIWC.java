@@ -80,8 +80,8 @@ import edu.stanford.nlp.util.StringUtils;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "token count, text, convert, LIWC, #ANALYTICS",
-		description = "Given a collection of word frequecies (as doubles), this component calculates " +
-				      "LIWC scores for the stream.",
+		description = "This component calculates " +
+				      "LIWC scores for the stream tokens provided.",
 		dependency = {"protobuf-java-2.2.0.jar,drevicko-LIWC.jar"}
 )
 public class LIWC extends AbstractExecutableComponent {

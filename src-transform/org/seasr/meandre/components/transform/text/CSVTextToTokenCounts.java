@@ -174,7 +174,12 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     	            throw new ComponentExecutionException(String.format("CSV line: '%s' does not contain enough values", line));
 
     	        String token = tokens[tokenPos];
-    	        int count = Integer.parseInt(tokens[countPos]);
+    	        int count = 0;
+    	        try {
+    	        	count = Integer.parseInt(tokens[countPos]);
+    	        } catch (NumberFormatException e) {
+    	        	console.warning(String.format("Token '%s' had malformed count '%s' - assigning zero!", token, tokens[countPos]));
+    	        }
 
     	        if (htCounts.containsKey(token))
     	            console.warning(String.format("Token '%s' occurs more than once in the dataset - replacing previous count...", token));

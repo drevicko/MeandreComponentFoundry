@@ -71,6 +71,16 @@ public class Frequency {
 
 		double logLike = 2.0D * ((a * ArithUtils.safeLog(ae1)) + (b * ArithUtils
 				.safeLog(be2)));
+		
+		// added missed elementes of log likelihood calculation:
+		double ce1 = 0.0D;
+		if (e1!=c) ce1 = (c-a)/(c-e1);
+		
+		double de2 = 0.0D;
+		if (e2!=d) de2 = (d-b)/(d-e2);
+		
+		logLike += 2.0D * ((c-a) * ArithUtils.safeLog(ce1) + (d-b) * ArithUtils
+				.safeLog(de2));
 
 		result[0] = a;
 

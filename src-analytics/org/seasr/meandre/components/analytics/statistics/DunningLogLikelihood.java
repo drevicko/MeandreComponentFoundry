@@ -150,15 +150,25 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
     )
     protected static final String PROP_SIGNED_DOUBLES = "signed_doubles";
 
+    @ComponentProperty(
+            name = "cutoff",
+            description = "Tokens with frequency less than this number in both reference and analysis " +
+            		"data will be ignored.",
+            defaultValue = "true"
+    )
+    protected static final String PROP_CUTOFF = "cutoff";
+
     //--------------------------------------------------------------------------------------------
 
     Boolean _signedInts = true;
     Boolean _signedDoubles = true;
+	private int _cutoff = 0;
     
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	_signedInts  = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SIGNED_INTS, ccp));
     	_signedDoubles  = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_SIGNED_DOUBLES, ccp));
+    	_cutoff  = Integer.parseInt(getPropertyOrDieTrying(PROP_CUTOFF, ccp));
     }
 
 	@Override
@@ -182,7 +192,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 //			referenceCounts.put(str, reference.get(str));
 //		}
 
-		Map<ReverseScoredString, double[]>  results = doDunning(analysisCounts,referenceCounts,2);
+		Map<ReverseScoredString, double[]>  results = doDunning(analysisCounts,referenceCounts,_cutoff);
 
 //		double min = Double.MAX_VALUE;
 //		for (ReverseScoredString key : results.keySet()) {
@@ -272,13 +282,15 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 			Number stringCount = analysisCounts.get(stringToAnalyze);
 			if (stringCount == null)
 				stringCount = new Integer(0);
-			if (stringCount.intValue() < cutoff)
-				continue;
+			
 			// Get string count in reference text.
-			int refCount = 0;
-			if (referenceCounts.containsKey(stringToAnalyze)) {
-				refCount = referenceCounts.get(stringToAnalyze).intValue();
-			}
+			Number refCount = referenceCounts.get(stringToAnalyze);
+			if (refCount == null)
+				refCount = new Integer(0);;
+			
+			if (refCount.intValue() < cutoff && stringCount.intValue() < cutoff)
+				continue;
+			
 			// Compute frequency statistics
 			// including Dunning's log-likelihood.
 //			(0) Count of word/lemma appearance in sample.
@@ -287,7 +299,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 //			(3) Percent of word/lemma appearance in reference.
 //			(4) Log-likelihood measure.
 //			(5) Significance of log-likelihood.
-			double[] freqAnal = doFreq(stringToAnalyze, stringCount.intValue(),analysisTotalCount, refCount, refTotalCount);
+			double[] freqAnal = doFreq(stringToAnalyze, stringCount.intValue(),analysisTotalCount, refCount.intValue(), refTotalCount);
 
 			// Save results for later reporting.
 			results.put(new ReverseScoredString(stringToAnalyze, freqAnal[4]),
