@@ -1,3 +1,20 @@
 bin
 build
 dist
+# github .gitignore stuff:
+#=======
+#lib-cov
+#*.seed
+#*.log
+#*.csv
+#*.dat
+#*.out
+#*.pid
+#*.gz
+#
+#pids
+#logs
+#results
+#
+#npm-debug.log
+#>>>>>>> 4481204ba8c3fcf0c5834200ae1b21285abb289c
