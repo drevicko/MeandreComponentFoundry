@@ -198,9 +198,9 @@ public class PrintToConsole extends AbstractExecutableComponent {
 		}
 
 		else
-            for (String s : DataTypeParser.parseAsString(data))
-                outputConsole.println(s);
-
+            for (String s : DataTypeParser.parseAsString(data)) 
+                outputConsole.println(s.replaceAll("\\\\n", "\n"));
+            
 		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
 
