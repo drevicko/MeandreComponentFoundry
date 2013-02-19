@@ -70,7 +70,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         		"The replacements are performed in order, so that the first replacements " +
         		"may effect what subsequent finds find.",
         name = "Text Cleaner",
-        tags = "#TRANSFORM, text, remove, replace",
+        tags = "#TRANSFORM, text, remove, replace, regex",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
@@ -117,8 +117,10 @@ public class TextCleaner extends AbstractExecutableComponent {
 	        description = "The replacement to substitute the matched substring found by find. " +
 	                      "If the replacement string needs to contain the literals $ and \\ then " +
 	                      "they should be escaped because they have special meaning. For example, as part of the replacement " +
-	                      "string one can use '$1' to refer to the first capturing group defined in the regular expression " +
-	                      "for find, $2 for the second, and so on.  If the literal '$1' is desired, then it should be escaped as '\\$1'.",
+	                      "string one can use '$1' to refer to the first capturing group defined in the corresponding regular expression, " +
+	                      "$2 for the second, and so on.  If the literal '$1' is desired, then it should be escaped as '\\$1'. " +
+	                      "Single '\\' characters are otherwise ignored ('\\n' will be rendered as simply 'n'). " +
+	                      "It doesn't appear possible to include a newline character",
             name = Names.PROP_REPLACE,
             defaultValue = ""
 	)
@@ -194,6 +196,7 @@ public class TextCleaner extends AbstractExecutableComponent {
 
 	    if (replacements.size() == 0)
 	        console.warning("No find/replace regular expressions have been set. No action will be taken on the input text.");
+	    console.info(String.format("found these replacement strings: %s", replacements));
 	}
 
 	@Override

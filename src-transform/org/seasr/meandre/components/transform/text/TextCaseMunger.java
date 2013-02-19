@@ -65,7 +65,7 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
         creator = "Ian Wood",
         description = "Changes text to lower case except for words in ALL CAPS. ",
         name = "Text Case Munger",
-        tags = "#TRANSFORM, text, remove, replace, case",
+        tags = "#TRANSFORM, text, remove, replace, case, regex",
         rights = Licenses.UofINCSA,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = {"protobuf-java-2.2.0.jar"}
