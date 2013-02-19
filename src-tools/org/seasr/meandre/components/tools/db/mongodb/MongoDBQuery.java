@@ -40,11 +40,11 @@
 *
 */
 
-package org.seasr.meandre.components.tools.db;
+package org.seasr.meandre.components.tools.db.mongodb;
 
+import org.apache.commons.lang.StringUtils;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
-import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
@@ -58,8 +58,6 @@ import org.meandre.core.ComponentContextProperties;
 import org.meandre.core.system.components.ext.StreamInitiator;
 import org.meandre.core.system.components.ext.StreamTerminator;
 
-import com.google.gwt.dev.util.Strings;
-import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -86,7 +84,7 @@ import com.mongodb.util.JSON;
 				"The results are returned separately, wrapped as a stream.",
 		dependency = {"protobuf-java-2.2.0.jar", "mongo-2.10.1.jar"}
 )
-public class QueryMongoDb extends AbstractStreamingExecutableComponent {
+public class MongoDBQuery extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -125,7 +123,7 @@ public class QueryMongoDb extends AbstractStreamingExecutableComponent {
 
 	@ComponentOutput(
 			name = MongoDBClient.BSON_STRING,
-			description = "The URL or file name containing the model read" +
+			description = "The objects read from the database (as a stream)" +
                 "<br>TYPE: com.mongodb.BasicDBObject"
 	)
 	protected static final String OUT_BSON = MongoDBClient.BSON_STRING;
@@ -188,8 +186,8 @@ public class QueryMongoDb extends AbstractStreamingExecutableComponent {
 			}
         }
 		
-		DBObject query = (DBObject) JSON.parse(Strings.join(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY))," "));
-		DBObject projection = (DBObject) JSON.parse(Strings.join(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PROJECTION))," "));
+		DBObject query = (DBObject) JSON.parse(StringUtils.join(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_QUERY))," "));
+		DBObject projection = (DBObject) JSON.parse(StringUtils.join(DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_PROJECTION))," "));
 		
         if (_wrapStream)
             cc.pushDataComponentToOutput(OUT_BSON, new StreamInitiator(streamId));

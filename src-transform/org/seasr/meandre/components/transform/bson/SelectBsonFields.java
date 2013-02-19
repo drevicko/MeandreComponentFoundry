@@ -40,18 +40,7 @@
  *
  */
 
-package org.seasr.meandre.components.transform.xml;
-
-import java.io.StringWriter;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.logging.Level;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
+package org.seasr.meandre.components.transform.bson;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
@@ -61,25 +50,10 @@ import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
-import org.meandre.core.ComponentContextException;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.system.components.ext.StreamInitiator;
-import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.BasicDataTypesTools;
-import org.seasr.datatypes.core.DataTypeParser;
-import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
-import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
-import org.seasr.meandre.components.tools.db.MongoDBClient;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.bootstrap.DOMImplementationRegistry;
-import org.w3c.dom.ls.DOMImplementationLS;
-import org.w3c.dom.ls.LSOutput;
-import org.w3c.dom.ls.LSSerializer;
-
-import com.google.gwt.dev.util.Strings;
+import org.seasr.meandre.components.tools.db.mongodb.MongoDBClient;
 import com.mongodb.BasicDBObject;
 
 /**
@@ -93,11 +67,15 @@ import com.mongodb.BasicDBObject;
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
-        tags = "#TRANSFORM, bson, select fields",
+        tags = "#TRANSFORM, bson, select fields, mongo, mongodb",
         description = "This component extracts BSon fields matching a BSon projection expression and outputs the result as a string.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class SelectBsonFields extends AbstractExecutableComponent {
+	//------------------------------ STRINGS -----------------------------------------------------
+	
+    protected static final String PARAM_OUT_STRING = "json_or_string";
+    protected static final String PARAM_FIELDS = "fields";
 
     //------------------------------ INPUTS -----------------------------------------------------
 
@@ -109,8 +87,6 @@ public class SelectBsonFields extends AbstractExecutableComponent {
     protected static final String IN_BSON = MongoDBClient.BSON_STRING;
 
     //------------------------------ OUTPUTS -----------------------------------------------------
-
-    protected static final String OUT_STRING = "json_or_string";
     
     @ComponentOutput(
             name = "json_or_string1",
@@ -150,14 +126,14 @@ public class SelectBsonFields extends AbstractExecutableComponent {
     //----------------------------- PROPERTIES ---------------------------------------------------
 
     @ComponentProperty(
-            name = "fields",
+            name = PARAM_FIELDS,
             description = "A comma separated list of fields to extract from the BSON. " +
             		"Up to 5 fields can be extracted and the are output in the order " +
             		"they appear (ie: the first field is pushed to port '"+OUT_STRING1+"'." +
             				"Beware: whitespace is NOT trimmed!",
             defaultValue = ""
     )
-    protected static final String PROP_FIELD = "field";
+    protected static final String PROP_FIELD = PARAM_FIELDS;
 
     //--------------------------------------------------------------------------------------------
 
@@ -176,7 +152,7 @@ public class SelectBsonFields extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         BasicDBObject bson = (BasicDBObject) cc.getDataComponentFromInput(IN_BSON);
         for (int i=0; i < _fields.length; i++) {
-        	cc.pushDataComponentToOutput(OUT_STRING+(i+1), BasicDataTypesTools.stringToStrings(bson.getString(_fields[i])));
+        	cc.pushDataComponentToOutput(PARAM_OUT_STRING+(i+1), BasicDataTypesTools.stringToStrings(bson.getString(_fields[i])));
         }
     }
 

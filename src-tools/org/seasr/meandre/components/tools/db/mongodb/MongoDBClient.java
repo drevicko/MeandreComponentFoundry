@@ -40,18 +40,16 @@
  *
  */
 
-package org.seasr.meandre.components.tools.db;
+package org.seasr.meandre.components.tools.db.mongodb;
 
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
-import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
 import com.mongodb.MongoClient;
@@ -78,17 +76,17 @@ import com.mongodb.ReadPreference;
 )
 public class MongoDBClient extends AbstractExecutableComponent {
 	protected static final String MONGODB_CONN_CLIENT = "mongodb_conn_client";
-	public static final String BSON_STRING = "mongodb_conn_client";
+	public static final String BSON_STRING = "mongodb_bson_object";
 
     //------------------------------ INPUTS -----------------------------------------------------
 
-    @ComponentInput(
+/*    @ComponentInput(
             name = Names.PORT_LOCATION,
             description = "The location URI of the mongodb server. eg: localhost:27017" +
                           "<br>TYPE: java.lang.String"
     )
     protected static final String IN_URL = Names.PORT_LOCATION;
-
+*/
     //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
@@ -103,9 +101,10 @@ public class MongoDBClient extends AbstractExecutableComponent {
     @ComponentProperty(
             name = "server_location_URI",
             description = "The location of the mongodb server. In it's simplest form, this is the " +
-            		"location of the mongodb server. It can be any valid 'mongodb://' URI string " +
-            		"(can contain multiple host:port strings separated by commas and other options - " +
-            		"eg 'mongodb://localhost:27017?replicaSet=rs0'). " +
+            		"location of the mongodb server. It can be any valid mongodb URI string. " +
+            		"The syntax is as follows;" +
+            		"<br>mongodb://[username:password@]host1[:port1][,host2[:port2],...[,hostN[:portN]]][/[database][?options]]" +
+            		"<br>eg: mongodb://localhost:22017?replicaSet=rs0" +
             		"In this case, any settings here overridden by other property settings.",
             defaultValue = "localhost:27017"
     )
@@ -137,6 +136,8 @@ public class MongoDBClient extends AbstractExecutableComponent {
         	mongoClientURI = new MongoClientURI(location); 
         	mongoClient = new MongoClient(mongoClientURI);
         } catch (IllegalArgumentException e) {
+        	console.warning(String.format("Could not interpret %s as a mongo URI, interpreting as a server:port string.", location));
+        	console.warning(String.format("Exception reason: %s", e.getMessage()));
         	mongoClient = new MongoClient(location);
         }
         if (readPreference != "") mongoClient.setReadPreference(ReadPreference.valueOf(readPreference));
