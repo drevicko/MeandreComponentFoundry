@@ -121,11 +121,19 @@ public class PrintToConsole extends AbstractExecutableComponent {
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
+    @ComponentProperty(
+            name = "parse_newlines",
+            description = "Should the string '\\n' in a replacement expression be interpreted as a newline?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_PARSE_NEWLINES = "parse_newlines";
+
 	//--------------------------------------------------------------------------------------------
 
 
 	/** Should be wrapped */
 	private boolean bWrapped;
+	private boolean bParseNewlines;
 
 
 	//--------------------------------------------------------------------------------------------
@@ -133,6 +141,7 @@ public class PrintToConsole extends AbstractExecutableComponent {
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		bWrapped = Boolean.parseBoolean(ccp.getProperty(PROP_WRAP_STREAM));
+		bParseNewlines = Boolean.parseBoolean(ccp.getProperty(PROP_PARSE_NEWLINES));
 	}
 
 	@Override
@@ -199,7 +208,10 @@ public class PrintToConsole extends AbstractExecutableComponent {
 
 		else
             for (String s : DataTypeParser.parseAsString(data)) 
-                outputConsole.println(s.replaceAll("\\\\n", "\n"));
+            	if (bParseNewlines) 
+            		outputConsole.println(s.replaceAll("\\\\n", "\n"));
+            	else
+            		outputConsole.println(s);
             
 		cc.pushDataComponentToOutput(OUT_OBJECT, data);
 	}
