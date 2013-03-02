@@ -71,7 +71,6 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
-import cc.mallet.examples.TopicModel;
 import cc.mallet.topics.ParallelTopicModel;
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.LabelSequence;
@@ -253,12 +252,18 @@ public class SaveTopicModelState extends AbstractExecutableComponent {
             console.fine("State file created");
         }
         finally {
+        	console.fine("Closing stream (PrintStream)");
             stream.close();
+            console.fine("Closing os (OutputStream)");
             os.close();
+            console.fine("Finished closing sreams in finally clause");
         }
 
+        console.fine("Sending location to "+OUT_LOCATION);
         cc.pushDataComponentToOutput(OUT_LOCATION, BasicDataTypesTools.stringToStrings(file.toURI().toURL().toString()));
+        console.fine("Sending topic model to "+OUT_TOPIC_MODEL);
         cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
+        console.fine("All done, end of executeCallBack()");
     }
 
     @Override

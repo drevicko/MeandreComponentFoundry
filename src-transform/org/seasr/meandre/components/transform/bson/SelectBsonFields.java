@@ -152,7 +152,12 @@ public class SelectBsonFields extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         BasicDBObject bson = (BasicDBObject) cc.getDataComponentFromInput(IN_BSON);
         for (int i=0; i < _fields.length; i++) {
-        	cc.pushDataComponentToOutput(PARAM_OUT_STRING+(i+1), BasicDataTypesTools.stringToStrings(bson.getString(_fields[i])));
+        	String f = bson.getString(_fields[i]);
+        	if (f == null) {
+        		console.warning(String.format("Got null string for field %s (%s)", i,_fields[i]));
+        		f = "";
+        	}
+        	cc.pushDataComponentToOutput(PARAM_OUT_STRING+(i+1), BasicDataTypesTools.stringToStrings(f));
         }
     }
 

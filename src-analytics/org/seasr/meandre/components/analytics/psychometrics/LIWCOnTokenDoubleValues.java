@@ -139,9 +139,15 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    DoublesMap tokenValues = (DoublesMap)cc.getDataComponentFromInput(INPUT_WORD_DISTRIBUTION);	    
-        
-		WordClassFloatCount[] LIWC_Values = dict.countFloatClasses(BasicDataTypesTools.DoubleMapToMap(tokenValues));
+	    DoublesMap tokenValues = (DoublesMap)cc.getDataComponentFromInput(INPUT_WORD_DISTRIBUTION);	   
+	    
+	    WordClassFloatCount[] LIWC_Values = null;
+	    try {
+	    	LIWC_Values = dict.countFloatClasses(BasicDataTypesTools.DoubleMapToMap(tokenValues));
+	    } catch (IllegalArgumentException e) {
+	    	console.warning(String.format("Failed to calculate LIWC values! : %s", e.getMessage()));
+	    	LIWC_Values = new WordClassFloatCount[0];
+	    }
 //		System.out.print("LIWCOnTokenDoubleValues:");
 		Map<String, Double> out = new Hashtable<String, Double>();
 		for (WordClassFloatCount fc : LIWC_Values) {

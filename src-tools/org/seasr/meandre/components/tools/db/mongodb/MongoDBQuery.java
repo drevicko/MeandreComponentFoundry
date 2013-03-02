@@ -195,8 +195,8 @@ public class MongoDBQuery extends AbstractStreamingExecutableComponent {
 		DBCursor cursor = _collection.find(query, projection);		
 		try {
 		   while(cursor.hasNext()) {
+		       console.finest("Pushing next item");
 			   cc.pushDataComponentToOutput(OUT_BSON, cursor.next());
-		       System.out.println();
 		   }
 		} finally {
 		   cursor.close();

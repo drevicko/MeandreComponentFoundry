@@ -242,7 +242,7 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
 
             int dataSize = topicModel.getData().size();
             int[] topicCounts = new int[numTopics];
-            double temp_weight[] = new double[numTopics];
+//            double temp_weight[] = new double[numTopics];
             int docNum = 0;
             for (TopicAssignment ta : topicModel.getData()) {
                 int[] features = ta.topicSequence.getFeatures();

@@ -133,7 +133,6 @@ public class AggregateInstances extends AbstractStreamingExecutableComponent {
     @Override
     public void endStream() throws Exception {
         console.fine(String.format("sending instance list of size %d", _instanceList.size()));
-        System.out.println("Sending instance list length "+_instanceList.size());
     	if (!_instanceList.isEmpty())
     		componentContext.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
 

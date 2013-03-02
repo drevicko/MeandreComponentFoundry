@@ -132,6 +132,8 @@ public class MongoDBClient extends AbstractExecutableComponent {
     	String location = getPropertyOrDieTrying(PROP_MONGODB_SERVER_LOCATION, ccp);
         String readPreference = getPropertyOrDieTrying(PROP_MONGODB_READ_PREFERENCE, ccp);
         
+        console.fine(String.format("Got mongo server location %s", location));
+        
         try {
         	mongoClientURI = new MongoClientURI(location); 
         	mongoClient = new MongoClient(mongoClientURI);
