@@ -66,7 +66,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 /**
  * Writes the given data to a file
  *
- * @author Boris Capitanu
  * @author Ian Wood
  */
 

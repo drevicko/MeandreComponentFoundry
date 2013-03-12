@@ -146,6 +146,9 @@ public class SelectBsonFields extends AbstractExecutableComponent {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	_fields = getPropertyOrDieTrying(PROP_FIELD, ccp).split(",");
+    	for (String field : _fields) {
+    		console.fine(String.format("Got a field %s",field));
+    	}
     }
 
     @Override

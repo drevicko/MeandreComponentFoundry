@@ -106,12 +106,7 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 	        description = "The calculated LIWC scores." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
 	)
-    protected static final String OUT_SIZE = "topic_size";
-	@ComponentOutput(
-	        name = "topic_word_distributions",
-	        description = "The word distribution that was input." +
-	            "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
-	)
+
     protected static final String OUT_WORD_DISTRIBUTION = "topic_word_distributions";
 
     //------------------------------ PROPERTIES --------------------------------------------------
@@ -151,7 +146,8 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 //		System.out.print("LIWCOnTokenDoubleValues:");
 		Map<String, Double> out = new Hashtable<String, Double>();
 		for (WordClassFloatCount fc : LIWC_Values) {
-			out.put(dict.getClassName(fc.classId),fc.countFloat);
+			Double oldValue = out.put(dict.getClassName(fc.classId),fc.countFloat);
+			if (oldValue != null) console.warning(String.format("Duplicate class %s (id %d) with values %f (new) and %f (old) !?",dict.getClassName(fc.classId),fc.classId,fc.countFloat,oldValue));
 //			System.out.print(fc);
 		}
 		
