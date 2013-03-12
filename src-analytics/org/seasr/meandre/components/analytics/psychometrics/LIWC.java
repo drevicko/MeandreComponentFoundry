@@ -142,7 +142,13 @@ public class LIWC extends AbstractExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
 		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
         
-		WordClassCount[] LIWC_Values = dict.countClasses(StringUtils.join(tokens));
+		WordClassCount[] LIWC_Values = null;
+	    try {
+			LIWC_Values = dict.countClasses(StringUtils.join(tokens));
+	    } catch (IllegalArgumentException e) {
+	    	console.warning(String.format("Failed to calculate LIWC values! : %s", e.getMessage()));
+	    	LIWC_Values = new WordClassCount[0];
+	    }
 //		System.out.print("LIWCOnTokenDoubleValues:");
 		Map<String, Integer> out = new Hashtable<String, Integer>();
 		for (WordClassCount fc : LIWC_Values) {
