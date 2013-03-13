@@ -42,6 +42,9 @@
 
 package org.seasr.meandre.components.tools.db.mongodb;
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -118,6 +121,14 @@ public class MongoDBClient extends AbstractExecutableComponent {
     )
     protected static final String PROP_MONGODB_READ_PREFERENCE = "read_preference";
 
+    @ComponentProperty(
+            name = "restrict_logging",
+            description = "When True, set the log level of ReplicaSetStatus to SEVERE. " +
+            		"This is useful if you know that one member of a replica set is down.",
+            defaultValue = "True"
+    )
+    protected static final String PROP_MONGODB_RESTRICT_LOGGING = "restrict_logging";
+
     //--------------------------------------------------------------------------------------------
 
 
@@ -143,7 +154,11 @@ public class MongoDBClient extends AbstractExecutableComponent {
         	mongoClient = new MongoClient(location);
         }
         if (readPreference != "") mongoClient.setReadPreference(ReadPreference.valueOf(readPreference));
-
+        //mongoClient.logger.
+        if (Boolean.parseBoolean(getPropertyOrDieTrying(PROP_MONGODB_RESTRICT_LOGGING, ccp))) {
+        	Logger.getLogger( "com.mongodb.ReplicaSetStatus" ).setLevel(Level.SEVERE);
+        }
+        
         console.fine(String.format("Connected to mongodb with URI/location %s ", location));
     }
 
