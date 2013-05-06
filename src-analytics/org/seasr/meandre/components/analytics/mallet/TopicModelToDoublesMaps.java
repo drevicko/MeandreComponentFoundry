@@ -113,7 +113,7 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
     @ComponentOutput(
             name = "topic_size",
             description = "A stream containing the total token count for each topic" +
-                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Strings"
+                "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Doubles"
     )
     protected static final String OUT_TOPIC_SIZE = "topic_size";
 

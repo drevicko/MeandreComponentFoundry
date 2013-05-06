@@ -158,7 +158,7 @@ public class LIWC extends AbstractExecutableComponent {
 		
 //		System.out.println();
 //		System.out.println(String.format("LIWCOnTokenDoubleValues: found %d classes",out.size()));
-		Integer count = out.get(WordClassDictionary.CLASS_TOTAL_WORDS);
+		Integer count = out.get(dict.getClassName(WordClassDictionary.CLASS_TOTAL_WORDS));
 		if (count == null) count = -1;
 		console.fine(String.format("LIWC counter found %d classes from %d tokens",out.size(),count));
 		
