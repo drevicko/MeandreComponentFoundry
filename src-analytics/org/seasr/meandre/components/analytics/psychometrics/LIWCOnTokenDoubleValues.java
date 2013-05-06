@@ -143,12 +143,11 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 	    	console.warning(String.format("Failed to calculate LIWC values! : %s", e.getMessage()));
 	    	LIWC_Values = new WordClassFloatCount[0];
 	    }
-		System.out.print("LIWCOnTokenDoubleValues:");
+		
 		Map<String, Double> out = new Hashtable<String, Double>();
 		for (WordClassFloatCount fc : LIWC_Values) {
 			Double oldValue = out.put(dict.getClassName(fc.classId),fc.countFloat);
 			if (oldValue != null) console.warning(String.format("Duplicate class %s (id %d) with values %f (new) and %f (old) !?",dict.getClassName(fc.classId),fc.classId,fc.countFloat,oldValue));
-			System.out.print(fc);
 		}
 		
 //		System.out.println();

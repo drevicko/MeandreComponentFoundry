@@ -60,6 +60,8 @@ import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 
+import tchrist.PatternUtils;
+
 /**
  * @author Boris Capitanu
  */
@@ -100,6 +102,13 @@ public class TextCleaner extends AbstractExecutableComponent {
     protected static final String OUT_TEXT = Names.PORT_TEXT;
 
     //------------------------------ PROPERTIES --------------------------------------------------
+
+	@ComponentProperty(
+	        description = "Use unicode aware character classes for '\\w' etc...",
+            name = "unicode-regex",
+            defaultValue = "False"
+	)
+	protected static final String PROP_UNICODE_REGEX = "unicode-regex";
 
 	@ComponentProperty(
 	        description = "The regular expression to find the matched substring. " +
@@ -172,25 +181,31 @@ public class TextCleaner extends AbstractExecutableComponent {
 
 
 	private final Map<Pattern,String> replacements = new LinkedHashMap<Pattern,String>();
-
+	private boolean unicodeRegexes = false; 
 
 	//--------------------------------------------------------------------------------------------
 
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+		unicodeRegexes = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_UNICODE_REGEX, false, false, ccp));
+		
 	    String find = getPropertyOrDieTrying(PROP_FIND, false, false, ccp);
+		if (unicodeRegexes) find = PatternUtils.unicode_charclass(find);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE, false, false, ccp));
 
 	    find = getPropertyOrDieTrying(PROP_FIND_2, false, false, ccp);
+		if (unicodeRegexes) find = PatternUtils.unicode_charclass(find);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_2, false, false, ccp));
 
 	    find = getPropertyOrDieTrying(PROP_FIND_3, false, false, ccp);
+		if (unicodeRegexes) find = PatternUtils.unicode_charclass(find);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_3, false, false, ccp));
 
 	    find = getPropertyOrDieTrying(PROP_FIND_4, false, false, ccp);
+		if (unicodeRegexes) find = PatternUtils.unicode_charclass(find);
 	    if (find.length() > 0)
 	        replacements.put(Pattern.compile(find), getPropertyOrDieTrying(PROP_REPLACE_4, false, false, ccp));
 
@@ -216,7 +231,7 @@ public class TextCleaner extends AbstractExecutableComponent {
 		        while (matcher.find())
     		        for (int n = 1, nMax = matcher.groupCount(); n <= nMax; n++)
     		            if (matcher.group(n) != null)
-    		                console.fine(String.format("Group %2$d ($%2$d) match: '%s'", matcher.group(n), n));
+    		                console.fine(String.format("Group %2$d ($%2$d) match: '%s' replacing with: '%3s'", matcher.group(n), n, replacement));
 
                 matcher.reset();
 
