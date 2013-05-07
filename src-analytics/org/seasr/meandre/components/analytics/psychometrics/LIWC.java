@@ -110,10 +110,22 @@ public class LIWC extends AbstractExecutableComponent {
 
 	@ComponentOutput(
 	        name = "word_count",
-	        description = "The total token count." +
+	        description = "The total word count. Words are strings of alphabetic characters. " +
+	        		"Other tokens are not counted." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.Integers"
 	)
     protected static final String OUT_WORD_COUNT = "word_count";
+
+	@ComponentInput(
+			name = Names.PORT_TOKENS,
+			description = "The tokens that were input." +
+    			 "<br>TYPE: java.lang.String" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                 "<br>TYPE: byte[]" +
+                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Bytes" +
+                 "<br>TYPE: java.lang.Object"
+	)
+	protected static final String OUT_TOKENS = Names.PORT_TOKENS;
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -140,7 +152,8 @@ public class LIWC extends AbstractExecutableComponent {
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-		String[] tokens = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TOKENS));
+		Object inTokens = cc.getDataComponentFromInput(IN_TOKENS);
+		String[] tokens = DataTypeParser.parseAsString(inTokens);
         
 		WordClassCount[] LIWC_Values = null;
 	    try {
@@ -164,6 +177,7 @@ public class LIWC extends AbstractExecutableComponent {
 		
 		cc.pushDataComponentToOutput(OUT_LIWC_SCORES, BasicDataTypesTools.mapToIntegerMap(out, false));
 		cc.pushDataComponentToOutput(OUT_WORD_COUNT, BasicDataTypesTools.integerToIntegers(count));
+		cc.pushDataComponentToOutput(OUT_TOKENS, inTokens);
 	}
 
 	@Override
