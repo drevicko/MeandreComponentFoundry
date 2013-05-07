@@ -80,7 +80,8 @@ import cc.mallet.types.IDSorter;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, mallet, topic model, xml",
-        description = "This component outputs inferred topic-word distributions for a given topic index from a topic model." ,
+        description = "This component outputs inferred topic-word distributions from a topic model as a stream of " +
+        		"word-wordweight dictionaries." ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TopicModelToWordWeightMaps extends AbstractStreamingExecutableComponent {
