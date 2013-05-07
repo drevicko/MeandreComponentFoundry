@@ -86,11 +86,11 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = "topic_word_distributions",
+            name = "topic_word_distribution",
             description = "The words and associated probabilities as double values " +
             "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
     )
-    protected static final String INPUT_WORD_DISTRIBUTION = "topic_word_distributions";
+    protected static final String INPUT_WORD_DISTRIBUTION = "topic_word_distribution";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -102,12 +102,12 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
     protected static final String OUT_LIWC_SCORES = "LIWC_scores";
 
 	@ComponentOutput(
-	        name = "topic_size",
-	        description = "The calculated LIWC scores." +
+	        name = "topic_word_distribution",
+	        description = "The words and associated probabilities as double values that were input." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
 	)
 
-    protected static final String OUT_WORD_DISTRIBUTION = "topic_size";
+    protected static final String OUT_WORD_DISTRIBUTION = "topic_word_distribution";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
