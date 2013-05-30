@@ -133,10 +133,20 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
     )
     protected static final String PROP_WRAP_STREAM = Names.PROP_WRAP_STREAM;
 
+    @ComponentProperty(
+            name = "frequencies_or_counts",
+            description = "Return frequencies or counts. If set to 'counts', raw token counts are output. " +
+            		"If set to 'frequencies', counts are normalised by the total count of each topic, so that " +
+            		"the returned DoublesMap is a probability distribution.",
+            defaultValue = "frequencies"
+    )
+    protected static final String PROP_FREQUENCIES_OR_COUNTS = "frequencies_or_counts";
+
     //--------------------------------------------------------------------------------------------
 
 
     protected boolean _wrapStream;
+	protected boolean _normaliseCounts;
 
 
     //--------------------------------------------------------------------------------------------
@@ -146,6 +156,7 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
 	    super.initializeCallBack(ccp);
 
         _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
+        _normaliseCounts = getPropertyOrDieTrying(PROP_FREQUENCIES_OR_COUNTS, false, false, ccp) == "frequencies";
     }
 
     @Override
@@ -159,6 +170,7 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
             cc.pushDataComponentToOutput(OUT_TOPIC_SIZE, sd);
 		    cc.pushDataComponentToOutput(OUT_TOPIC_DISTRIBUTIONS, sd);
 		}
+        cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
 
         int numTopics = topicModel.getNumTopics();
         Alphabet alphabet = topicModel.getAlphabet();
@@ -183,7 +195,11 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
             	System.out.println(String.format("TopicModelToDoublesMaps: topic %d has count %d but %d mallet tokens!!",topic,topicTotalCount,topicModel.tokensPerTopic[topic]));
            
             for (String word : topicWordDistribution.keySet())
-            	topicWordDistribution.put(word,topicWordDistribution.get(word)/topicTotalCount);
+            	if (_normaliseCounts) {
+            		topicWordDistribution.put(word,topicWordDistribution.get(word)/topicTotalCount);
+            	} else {
+            		topicWordDistribution.put(word,topicWordDistribution.get(word));
+            	}
             
 //            System.out.println(String.format("TopicModelToDoublesMaps: for topic %d found %d words",topic,topicWordDistribution.size()));
             console.fine(String.format("for topic %d found %d words",topic,topicWordDistribution.size()));
@@ -193,7 +209,6 @@ public class TopicModelToDoublesMaps extends AbstractStreamingExecutableComponen
             cc.pushDataComponentToOutput(OUT_TOPIC_DISTRIBUTIONS, BasicDataTypesTools.mapToDoubleMap(topicWordDistribution, false));
         }
         
-        cc.pushDataComponentToOutput(OUT_TOPIC_MODEL, topicModel);
 
 		if (_wrapStream) {
 		    StreamDelimiter sd = new StreamTerminator(streamId);
