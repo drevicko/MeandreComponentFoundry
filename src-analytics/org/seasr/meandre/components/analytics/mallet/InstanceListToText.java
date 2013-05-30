@@ -42,8 +42,6 @@
 
 package org.seasr.meandre.components.analytics.mallet;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -53,7 +51,12 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
+import org.seasr.datatypes.core.BasicDataTypesTools;
+import org.seasr.datatypes.core.Names;
+import org.seasr.meandre.components.abstracts.AbstractStreamingExecutableComponent;
+
 import cc.mallet.types.Alphabet;
 import cc.mallet.types.FeatureSequence;
 import cc.mallet.types.Instance;
@@ -71,13 +74,14 @@ import cc.mallet.types.InstanceList;
         		"It assumes each instance is a Mallet feature sequence and aborts if this is not the case. " ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class InstanceListToText extends AbstractExecutableComponent {
+public class InstanceListToText extends AbstractStreamingExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
             name = "mallet_instance_list",
             description = "The Mallet instance list" +
+                    "typically used for training or testing of a machine learning algorithm. " +
                 "<br>TYPE: cc.mallet.types.InstanceList"
     )
     protected static final String IN_INSTANCE_LIST = "mallet_instance_list";
@@ -87,81 +91,65 @@ public class InstanceListToText extends AbstractExecutableComponent {
 
     @ComponentOutput(
             name = "mallet_instance_list",
-            description = "The list of accumulated machine learning instances, " +
-                "typically used for training or testing of a machine learning algorithm" +
+            description = "The Mallet instance list that was input. " +
                 "<br>TYPE: cc.mallet.types.InstanceList"
     )
     protected static final String OUT_INSTANCE_LIST = "mallet_instance_list";
     
     @ComponentOutput(
-            name = "mallet_instance_list",
-            description = "The list of accumulated machine learning instances, " +
-                "typically used for training or testing of a machine learning algorithm" +
-                "<br>TYPE: cc.mallet.types.InstanceList"
+            name = Names.PORT_TOKENS,
+            description = "A stream of arrays of tokens extracted from the instance list." +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
-    protected static final String OUT_INSTANCE_LIST = "mallet_instance_list";
+    protected static final String OUT_TOKENS = Names.PORT_TOKENS;
     
 
     //----------------------------- PROPERTIES ---------------------------------------------------
+    
+	@ComponentProperty(
+            name = "wrap_stream",
+            description = "Should the output be wrapped in a stream?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_WRAP_STREAM = "wrap_stream";
 
     //--------------------------------------------------------------------------------------------
 
-
-	protected Integer _minFrequency;
-
-
-	private boolean _removeEmpty;
-
+	protected String[] tokens = new String[1000];
+	protected int tokenLength = 0;
+    protected boolean _wrapStream;
+    
 
     //--------------------------------------------------------------------------------------------
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
-        String minFrequency = getPropertyOrDieTrying(PROP_MIN_FREQENCY, ccp);
-        //use getPropertyOrDieTrying(propName, true, false, context) if we're ok with empty minFrequency
-        _minFrequency = minFrequency.length() > 0 ? Integer.parseInt(minFrequency) : 0;
-        _removeEmpty  = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_REMOVE_EMPTY, ccp));
-        console.config(String.format("removing words occuring < %d; removing empty instances %b", _minFrequency, _removeEmpty ));
+        super.initializeCallBack(ccp);
+        _wrapStream = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_WRAP_STREAM, ccp));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-    	InstanceList _instanceList = (InstanceList) cc.getDataComponentFromInput(IN_INSTANCE_LIST);
-        
-        Alphabet inAlphabet = _instanceList.getAlphabet();
-        
-        // first count the features
-        int[] iFrequentCounts = new int[inAlphabet.size()];
-        Arrays.fill(iFrequentCounts,0);
-        for (Instance instance : _instanceList)
-        	for (int f : ((FeatureSequence)instance.getData()).getFeatures() ) 
-        		iFrequentCounts[f]++;
-        
-        // then convert to doubles and find out how many frequent ones
-        int frequentCounts = 0;
-        double[] dFrequentCounts = new double[inAlphabet.size()];
-        int i=0;
-        for (int count:iFrequentCounts) {
-        	if (count >= _minFrequency) frequentCounts ++;
-        	dFrequentCounts[i++]=(double)count;
-        }
-        
-        // now prune the FeatureSequences
-        ArrayList<Instance> remove = new ArrayList<Instance>();
-        Alphabet newAlphabet = new Alphabet(frequentCounts);
-        for (Instance instance : _instanceList) {
-        	FeatureSequence seq = (FeatureSequence) instance.getData();
-        	seq.prune(dFrequentCounts, newAlphabet, _minFrequency);
-        	if (_removeEmpty && seq.getLength() == 0) {
-        		remove.add(instance);
-        	}
-        }
-        console.fine(String.format("removing %d instances", remove.size()));
-        for (Instance instance : remove) {
-        	_instanceList.remove(instance);
-        }
+        if (_wrapStream)
+            cc.pushDataComponentToOutput(OUT_TOKENS, new StreamInitiator(streamId));
 
+		InstanceList _instanceList = (InstanceList) cc.getDataComponentFromInput(IN_INSTANCE_LIST);
 		cc.pushDataComponentToOutput(OUT_INSTANCE_LIST, _instanceList);
+
+        Alphabet inAlphabet = _instanceList.getAlphabet();
+        if (inAlphabet == null && _instanceList.size() > 0)
+        		inAlphabet = _instanceList.get(0).getDataAlphabet();
+        console.info(String.format("Got instance list alphabet of length %s ",inAlphabet.size()));
+        for (Instance instance : _instanceList) {
+        	tokenLength = 0;
+        	FeatureSequence features = (FeatureSequence)instance.getData();
+        	if (features.getLength() > tokens.length) tokens = new String[features.getLength()+100];
+        	inAlphabet.lookupObjects( features.getFeatures(), tokens);
+        	cc.pushDataComponentToOutput(OUT_TOKENS, BasicDataTypesTools.stringToStrings(tokens));
+        }
+        
+        if (_wrapStream)
+            cc.pushDataComponentToOutput(OUT_TOKENS, new StreamTerminator(streamId));
         
     }
 
@@ -170,5 +158,9 @@ public class InstanceListToText extends AbstractExecutableComponent {
     }
 
     //--------------------------------------------------------------------------------------------
-
+    
+	@Override
+	public boolean isAccumulator() {
+		return false;
+	}
 }
