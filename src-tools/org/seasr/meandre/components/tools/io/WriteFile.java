@@ -285,7 +285,8 @@ public class WriteFile extends AbstractExecutableComponent {
     	if (componentContext != null) {
     		if (componentContext.isFlowAborting() && file != null) {
     			try {
-    				file.delete();
+    				// why would we want to delete the last file we output???
+    				//file.delete();
     			} catch (Exception e) { }
     		}
     	}

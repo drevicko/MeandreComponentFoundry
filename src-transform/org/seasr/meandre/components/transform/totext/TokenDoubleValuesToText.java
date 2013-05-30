@@ -70,9 +70,9 @@ import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "token count, text, convert, double, token value, #transform",
+		tags = "token count, text, convert, double, token value, #transform,csv",
 		description = "Given a collection of token values (as doubles), this component converts it " +
-				      "into text. The default separator is a comma, so make sure tokens " +
+				      "into csv text. The default separator is a comma, so make sure tokens " +
 				      "do not have commas or change the separator.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
