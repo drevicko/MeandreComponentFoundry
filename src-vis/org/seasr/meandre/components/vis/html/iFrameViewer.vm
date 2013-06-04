@@ -28,12 +28,18 @@
     }
 
     var sz =  $columns + 6;
+    #if( $height )
+      var h = $height + 6;
+    #else
+      var h = sz
+    #end
+    
     var docs = [
         #foreach( $src in $htmlDocs ) '$src'#commaIfNeeded( $velocityCount $htmlDocs )#end
     ];
 
     for (var i in docs)
-        document.body.appendChild(createIframe(docs[i], sz, sz));
+        document.body.appendChild(createIframe(docs[i], sz, h));
 </script>
 </body>
 </html>
