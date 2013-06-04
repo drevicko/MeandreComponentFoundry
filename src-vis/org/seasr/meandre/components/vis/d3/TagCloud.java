@@ -233,12 +233,6 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         context.put("data", data.toString());
         if (label != "") {
         	context.put("label", label);
-//        	int h = Integer.parseInt( (String)context.get("height") );
-        	Object h = context.get("height");
-        	int hi;
-        	if (h instanceof String) hi = Integer.parseInt((String)h);
-        	else hi = (Integer)h;
-        	context.put("height", hi + 18);
         }
         console.info("Put " + data.toString().length() + " of data with label '"+label+"'");
 
