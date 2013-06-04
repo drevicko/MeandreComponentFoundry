@@ -209,6 +209,7 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
         
         String label = "";
+        //TODO: cc.getConnectedInputs() appears to contain IN_LABEL when it's not connected??
 		if (Arrays.asList(cc.getConnectedInputs()).contains(IN_LABEL)) {
         		label = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LABEL))[0];
 		}
@@ -218,8 +219,10 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         for (Map.Entry<String, Integer> entry : tokenCounts.entrySet()) {
             String word = entry.getKey();
             Integer count = entry.getValue();
-
+            
+            // this is a spacer
             words.put(word);
+            // this is a spacer
             counts.put(count);
         }
 
@@ -230,8 +233,12 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         context.put("data", data.toString());
         if (label != "") {
         	context.put("label", label);
-        	int h = Integer.parseInt( (String)context.get("height") ); 
-        	context.put("height", h + 18);
+//        	int h = Integer.parseInt( (String)context.get("height") );
+        	Object h = context.get("height");
+        	int hi;
+        	if (h instanceof String) hi = Integer.parseInt((String)h);
+        	else hi = (Integer)h;
+        	context.put("height", hi + 18);
         }
         console.info("Put " + data.toString().length() + " of data with label '"+label+"'");
 
