@@ -121,7 +121,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/StandAloneGaz.jar"/>
-	<classpathentry kind="lib" path="lib/stanford-ner.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-ner.jar" sourcepath="/home/drevicko/workspace-psycholingua/stanford-ner-2013-04-04/stanford-ner-1.2.8-sources.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-parser.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-postagger.jar"/>
 	<classpathentry kind="lib" path="lib/stanfordModels.jar"/>

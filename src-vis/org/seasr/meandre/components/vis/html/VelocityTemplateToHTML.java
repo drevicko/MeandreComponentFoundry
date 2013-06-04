@@ -197,6 +197,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
         // render the template
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         String html = velocity.generateOutput(context, templateName);
+        console.info("Pushing velocity html of length " + html.length() + " from template "+templateName);
  		cc.pushDataComponentToOutput(OUT_HTML, html);
     }
 

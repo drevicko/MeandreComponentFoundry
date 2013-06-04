@@ -89,7 +89,7 @@ import org.w3c.dom.ls.LSSerializer;
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#TRANSFORM, xml, xpath, select nodes",
-        description = "This component extracts XML nodes matching an XPath expression " +
+        description = "This component extracts XML entities matching an XPath expression " +
         		      "from an XML document and outputs them one by one.",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
@@ -110,7 +110,7 @@ public class SelectNodesViaXPath extends AbstractStreamingExecutableComponent {
 
     @ComponentOutput(
             name = "xml_or_text",
-            description = "The XML result" +
+            description = "The result of the xpath query" +
                 "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings"
     )
     protected static final String OUT_XML = "xml_or_text";
