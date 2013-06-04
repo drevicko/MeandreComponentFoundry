@@ -42,6 +42,7 @@
 
 package org.seasr.meandre.components.vis.d3;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import org.json.JSONArray;
@@ -91,7 +92,15 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
+    @ComponentInput(
+            name = Names.PORT_DOC_TITLE,
+            description = "A label to show abovbe the tag cloud" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: java.lang.String"
+    )
+    protected static final String IN_LABEL = Names.PORT_DOC_TITLE;
+
+   //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = Names.PORT_HTML,
@@ -198,7 +207,11 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
         Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
-
+        
+        String label = "";
+		if (Arrays.asList(cc.getConnectedInputs()).contains(IN_LABEL)) {
+        		label = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LABEL))[0];
+		}
         JSONArray words = new JSONArray();
         JSONArray counts = new JSONArray();
 
@@ -215,6 +228,12 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         data.put("counts", counts);
 
         context.put("data", data.toString());
+        if (label != "") {
+        	context.put("label", label);
+        	int h = Integer.parseInt( (String)context.get("height") ); 
+        	context.put("height", h + 18);
+        }
+        console.info("Put " + data.toString().length() + " of data with label '"+label+"'");
 
         super.executeCallBack(componentContext);
     }

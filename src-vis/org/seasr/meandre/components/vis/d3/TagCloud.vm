@@ -6,6 +6,9 @@
     <script type='text/javascript' src="$d3CloudAPI"></script>
 </head>
 <body>
+#if( $label )
+<div class="label">$label</div>
+#end
 <script type='text/javascript'>
     var data = $data;
 
