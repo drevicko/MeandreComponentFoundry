@@ -70,9 +70,9 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 @Component(
         creator = "Boris Capitanu",
         description = "Arranges multiple HTML documents into a single web page from "+
-        "all HTML documents that are part of a stream. Two layouts currently exist. "+
+        "all HTML documents that are part of a stream. Two layouts currently exist. <br/>"+
         "1) FrameMaker.vm fits all frames in the browser window and adjusts size of " +
-            "each frame using the number of columns provided."+
+            "each frame using the number of columns provided.<br/>"+
         "2) iFrameViewer.vm allows the frame size to be set as pixels for column for each HTML document "+
             "and thus allows as much scrolling as needed",
         name = "Frame Maker",
@@ -211,6 +211,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 	public void startStream() throws Exception {
 		_htmlDocs.clear();
 		_isStreaming = true;
+		console.finer("Starting Stream");
 	}
 
 	@Override
@@ -225,6 +226,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 		if (_height >= 0) context.put("height", _height);
 
         String html = velocity.generateOutput(context, _template);
+		console.finer("Ending Stream, pushing "+_htmlDocs.size()+" docs, "+html.length()+" chars of html");
         componentContext.pushDataComponentToOutput(OUT_HTML, html);
 
 		_isStreaming = false;

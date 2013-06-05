@@ -220,7 +220,7 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 	    		Object input = componentInputCache.retrieveNext(IN_LABEL);
 	    		if (input != null) {
 	    			label = DataTypeParser.parseAsString(input)[0];
-	    			console.finest("Setting up label '"+label+"' from connected inputs "+cc.getConnectedInputs());
+	    			console.finest("Setting up label '"+label+"' from connected inputs "+Arrays.toString(cc.getConnectedInputs()));
 	    		} else 
 	    			console.warning("No label when it was expected!");
 	    	}
