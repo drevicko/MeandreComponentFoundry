@@ -42,8 +42,13 @@
 
 package org.seasr.meandre.components.vis.d3;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -186,10 +191,17 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     //--------------------------------------------------------------------------------------------
     
     protected Boolean labelsConnected;
-
+    protected HashMap<String,Set<Integer>> initiatorsReceived = new HashMap<String,Set<Integer>>();
+    protected HashMap<String,Set<Integer>> terminatorsReceived = new HashMap<String,Set<Integer>>();
+    
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+        
+        for (String input : ccp.getConnectedInputs()) {
+        	initiatorsReceived.put(input,new TreeSet<Integer>());
+        	terminatorsReceived.put(input,new TreeSet<Integer>());
+        }
 
         context.put("title", getPropertyOrDieTrying(PROP_TITLE, ccp));
         context.put("width", getPropertyOrDieTrying(PROP_WIDTH, ccp));
@@ -213,8 +225,10 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
 	    for (String portName : new String[] { IN_LABEL, IN_TOKEN_COUNTS })
 	        componentInputCache.storeIfAvailable(cc, portName);
+    	console.finest("execute callback entry, caches have sizes label: "+componentInputCache.getDataCount(IN_LABEL)+", count:"+componentInputCache.getDataCount(IN_TOKEN_COUNTS));
 
 	    while (componentInputCache.hasData(IN_TOKEN_COUNTS) && (!labelsConnected || componentInputCache.hasData(IN_LABEL) )) {
+	    	console.finest("execute callback loop,  caches have sizes label: "+componentInputCache.getDataCount(IN_LABEL)+", count:"+componentInputCache.getDataCount(IN_TOKEN_COUNTS));
 	    	String label = null;
 	    	if (labelsConnected) {
 	    		Object input = componentInputCache.retrieveNext(IN_LABEL);
@@ -252,19 +266,36 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 
 	    	super.executeCallBack(componentContext);
 	    }
+	    console.finest("execute callback exit,  caches have sizes label: "+componentInputCache.getDataCount(IN_LABEL)+", count:"+componentInputCache.getDataCount(IN_TOKEN_COUNTS));
     }
     
     @Override
     public void handleStreamInitiators() throws Exception {
-    	// ignore stream markers for IN_LABEL
-    	//TODO: we should probably check that stream markers match on both inputs. 
-    	//TODO: Also if a label arrives before the initiator on  IN_TOKEN_COUNTS (or after the terminator), we're in trouble!
         console.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
-        if (inputPortsWithInitiators.contains(IN_TOKEN_COUNTS)) {
-        	StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS);
-        	for (String portName : componentContext.getOutputNames()) {
-        		if (portName.equals(OUT_ERROR)) continue;
-        		componentContext.pushDataComponentToOutput(portName, si);
+        for (String portWithInitiator : inputPortsWithInitiators) {
+        	StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(portWithInitiator);
+        	if (!initiatorsReceived.containsKey(portWithInitiator)) {
+        		console.warning("uninitialised initiator list "+portWithInitiator+"! Others are: "+initiatorsReceived.keySet());
+        		initiatorsReceived.put(portWithInitiator, new TreeSet<Integer>());
+        	}
+        	Set<Integer> initiatorSet = initiatorsReceived.get(portWithInitiator);
+        	initiatorSet.add(si.getStreamId());
+        	Boolean allPorts = true;
+        	for (Entry<String, Set<Integer>> portEntry : initiatorsReceived.entrySet()) {
+        		if (!portEntry.getValue().contains(si.getStreamId()) ) {
+        			allPorts = false;
+        			break;
+        		}
+        	}
+        	if (allPorts) {
+        		for (Entry<String, Set<Integer>> portEntry : initiatorsReceived.entrySet()) {
+        			portEntry.getValue().remove(si.getStreamId());
+        		}
+        		for (String portName : componentContext.getOutputNames()) {
+//        			componentContext.getConnectedOutputs();
+        			if (portName.equals(OUT_ERROR)) continue;
+        			componentContext.pushDataComponentToOutput(portName, si);
+        		}
         	}
         }
         console.exiting(getClass().getName(), "handleStreamInitiators");
@@ -272,15 +303,31 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 
     @Override
     public void handleStreamTerminators() throws Exception {
-    	// ignore stream markers for IN_LABEL
-    	//TODO: we should probably check that stream markers match on both inputs. 
-    	//TODO: Also if a label arrives before the initiator on  IN_TOKEN_COUNTS (or after the terminator), we're in trouble!
         console.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
-        if (inputPortsWithTerminators.contains(IN_TOKEN_COUNTS)) {
-        	StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(IN_TOKEN_COUNTS);
-        	for (String portName : componentContext.getOutputNames()) {
-        		if (portName.equals(OUT_ERROR)) continue;
-        		componentContext.pushDataComponentToOutput(portName, st);
+        
+        for (String portWithTerminator : inputPortsWithTerminators) {
+        	StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(portWithTerminator);
+        	if (!terminatorsReceived.containsKey(portWithTerminator)) {
+        		console.warning("uninitialised terminator list "+portWithTerminator+"! Others are: "+terminatorsReceived.keySet());
+        		terminatorsReceived.put(portWithTerminator, new TreeSet<Integer>());
+        	}
+        	terminatorsReceived.get(portWithTerminator).add(st.getStreamId());
+        	Boolean allPorts = true;
+        	for (Entry<String, Set<Integer>> portEntry : terminatorsReceived.entrySet()) {
+        		if (!portEntry.getValue().contains(st.getStreamId()) ) {
+        			allPorts = false;
+        			break;
+        		}
+        	}
+        	if (allPorts) {
+        		for (Entry<String, Set<Integer>> portEntry : terminatorsReceived.entrySet()) {
+        			portEntry.getValue().remove(st.getStreamId());
+        		}
+        		for (String portName : componentContext.getOutputNames()) {
+//        			componentContext.getConnectedOutputs();
+        			if (portName.equals(OUT_ERROR)) continue;
+        			componentContext.pushDataComponentToOutput(portName, st);
+        		}
         	}
         }
         console.exiting(getClass().getName(), "handleStreamTerminators");
