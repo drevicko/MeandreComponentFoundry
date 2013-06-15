@@ -142,8 +142,10 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
     public void executeCallBack(ComponentContext cc) throws Exception {
         componentInputCache.storeIfAvailable(cc, IN_TRIGGER);
         componentInputCache.storeIfAvailable(cc, IN_OBJECT);
+    	console.finest("execute callback entry, caches have sizes trigger: "+componentInputCache.getDataCount(IN_TRIGGER)+", object:"+componentInputCache.getDataCount(IN_OBJECT));
 
 	    while (componentInputCache.hasDataAll(new String[] { IN_TRIGGER, IN_OBJECT })) {
+	    	console.finest("execute callback loop,  caches have sizes trigger: "+componentInputCache.getDataCount(IN_TRIGGER)+", object:"+componentInputCache.getDataCount(IN_OBJECT));
             Object object = componentInputCache.peek(IN_OBJECT);
             if (object instanceof StreamDelimiter) {
                 console.warning(String.format("Stream delimiters should not arrive on port '%s' - ignoring it...", IN_OBJECT));
@@ -171,6 +173,7 @@ public class TriggerMessage extends AbstractStreamingExecutableComponent {
 	        if (_reset)
 	            componentInputCache.retrieveNext(IN_OBJECT);
 	    }
+    	console.finest("execute callback exit,  caches have sizes trigger: "+componentInputCache.getDataCount(IN_TRIGGER)+", object:"+componentInputCache.getDataCount(IN_OBJECT));
     }
 
     @Override

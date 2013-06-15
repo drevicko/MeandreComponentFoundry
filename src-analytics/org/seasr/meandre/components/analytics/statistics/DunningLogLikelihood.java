@@ -215,11 +215,11 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 //			else //scale score
 //				outputMap.put(key.getString(), new Integer((int)(score/min)));
 
-			console.finer(String.format("%s\t%s\t%s\t%s", key.getString(), score, (int)score,sign));
+			console.finest(String.format("%s\t%s\t%s\t%s", key.getString(), score, (int)score,sign));
 		}
 		
-		for (ReverseScoredString key : results.keySet()) {
-		}
+//		for (ReverseScoredString key : results.keySet()) {
+//		}
 
 		cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(outputMap, false));
 		cc.pushDataComponentToOutput(OUT_TOKEN_DOUBLES, BasicDataTypesTools.mapToDoubleMap(outputMapDoubles, false));
@@ -274,7 +274,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 		// combined.
 		Set<String> keySet = combinedCounts.keySet();
 		// Counts strings analyzed.
-		int stringsDone = 0;
+		// int stringsDone = 0;
 		// Loop over the strings and
 		// compute the frequency statistics.
 		for (String stringToAnalyze : keySet) {
@@ -305,7 +305,7 @@ public class DunningLogLikelihood extends AbstractExecutableComponent {
 			results.put(new ReverseScoredString(stringToAnalyze, freqAnal[4]),
 					freqAnal);
 			// Update count of strings done.
-			stringsDone++;
+			// stringsDone++;
 		}
 
 
