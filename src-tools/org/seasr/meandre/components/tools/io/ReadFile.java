@@ -160,8 +160,15 @@ public class ReadFile extends AbstractExecutableComponent {
         	ois = new ObjectInputStream (new FileInputStream(file));
         	outData = ois.readObject();
 	        }
+//        catch (FileNotFoundException e) {
+//        	throw("");
+//        }
         finally {
-        	ois.close();
+        	if (ois != null)
+        		ois.close();
+        	else {
+//        		throw(new );
+        	}
         }
 
         if (file.getAbsolutePath().startsWith(publicResourcesDir)) {
