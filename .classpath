@@ -138,6 +138,12 @@
 	<classpathentry kind="lib" path="src-gwt/war/WEB-INF/lib/smartgwt.jar"/>
 	<classpathentry kind="lib" path="lib/drevicko-LIWC.jar" sourcepath="/psycholingua/src"/>
 	<classpathentry kind="lib" path="lib/mongo-2.10.1.jar" sourcepath="/mongo-java-driver/src"/>
+	<classpathentry kind="lib" path="lib/commons-csv-20070730.jar" sourcepath="/Users/drevicko/workspace-psycholingua/MeandreComponentFoundry/lib/javadoc/commons-csv-20070730/xref">
+		<attributes>
+			<attribute name="javadoc_location" value="file:/Users/drevicko/workspace-psycholingua/MeandreComponentFoundry/lib/javadoc/commons-csv-20070730/apidocs/"/>
+			<attribute name="source_encoding" value="ISO-8859-1"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/seasr-commons-1.4.9.jar"/>
 	<classpathentry kind="output" path="bin"/>
