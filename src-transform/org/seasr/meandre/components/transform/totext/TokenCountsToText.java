@@ -44,7 +44,12 @@ package org.seasr.meandre.components.transform.totext;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVFormat.CSVFormatBuilder;
+import org.apache.commons.csv.CSVPrinter;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
@@ -52,6 +57,7 @@ import org.meandre.annotations.Component.Mode;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypes.IntegersMap;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
@@ -73,8 +79,12 @@ import org.seasr.datatypes.core.Names;
 		rights = Licenses.UofINCSA,
 		tags = "#TRANSFORM, token count, text, convert",
 		description = "Given a collection of token counts, this component converts it " +
-				      "into text. The default separator is a comma, so make sure tokens " +
-				      "do not have commas or change the separator.",
+				      "into CSV text following <a href=\"http://tools.ietf.org/html/rfc4180\">RFC 4180</a>. " +
+				      "If a token contains the separator character, it will be " +
+				      "enclosed in double quotes, if it contains double quotes, they will be " +
+				      "repeated and the token will also be enclosed in double quotes.<br/>" +
+				      "Note that only the first character of the text separator will be used " +
+				      "('\\t' is interpereted as a single tab character).",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class TokenCountsToText extends AnalysisToText {
@@ -92,23 +102,40 @@ public class TokenCountsToText extends AnalysisToText {
 
 	@ComponentProperty(
 			name = "header",
-			description = "The header to use.",
+					description = "The comma-separated list of attribute names. The commas will be replaced " +
+							"by the separator specified in the " + PROP_TEXT_SEPARATOR + " property. If this property is empty, " +
+							"no header will be used.",
 		    defaultValue = "tokens,counts"
 	)
 	protected static final String PROP_HEADER = "header";
 
+	//--------------------------------------------------------------------------------------------
+	
+	private CSVFormat format;
 
 	//--------------------------------------------------------------------------------------------
-
+	
+    @Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    	super.initializeCallBack(ccp);
+        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(textSep.charAt(0));
+        if (bHeaderAdded) fmtBuilder = fmtBuilder.withHeader();
+        format = fmtBuilder.build();
+    }
+    
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    IntegersMap tokenCounts = (IntegersMap)cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS);
+	    Map<String, Integer> tokenCounts = BasicDataTypesTools.IntegerMapToMap((IntegersMap) cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos, false, "UTF-8");
+		PrintStream ps = new PrintStream(baos, false, encoding);
 
-		printIntegerMap(ps, tokenCounts, this.iCount, this.iOffset);
+	    CSVPrinter printer = new CSVPrinter(ps,format);
+	    for (Entry<String, Integer> token : tokenCounts.entrySet()) {
+	    	printer.printRecord(token.getKey(),token.getValue());
+	    }
+	    printer.close();
 
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString("UTF-8")));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString(encoding)));
 	}
 }
