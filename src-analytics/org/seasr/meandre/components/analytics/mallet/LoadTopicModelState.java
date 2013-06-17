@@ -85,14 +85,14 @@ import de.schlichtherle.io.FileOutputStream;
  */
 
 @Component(
-        name = "Save Topic Model State",
-        creator = "Boris Capitanu",
+        name = "Load Topic Model State",
+        creator = "Ian Wood",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
         rights = Licenses.UofINCSA,
         tags = "#output, mallet, topic model, state",
-        description = "This component saves the state resulting from running topic modeling" ,
+        description = "This component loads the state resulting from running topic modeling" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class LoadTopicModelState extends AbstractExecutableComponent {
@@ -198,6 +198,7 @@ public class LoadTopicModelState extends AbstractExecutableComponent {
         	// instead of calling the above printState which doesn't provide
         	// appropriate delimiters for words with spaces - I've copied the code here
         	// and modified it to use tabs -Loretta
+        	//FIXME : this is copied from SaveTopicModelState - changing it to read the state is unfinished! 
     		stream.readln ("#doc\tsource\tpos\ttypeindex\ttype\ttopic");
     		stream.read("#alpha : ");
     		for (int topic = 0; topic < topicModel.numTopics; topic++) {
