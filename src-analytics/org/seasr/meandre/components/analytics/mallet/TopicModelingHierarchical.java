@@ -63,8 +63,8 @@ import cc.mallet.types.InstanceList;
  */
 
 @Component(
-        name = "Mallet Topic Modeling",
-        creator = "Boris Capitanu",
+        name = "Mallet Hierarchical Topic Modeling",
+        creator = "Ian Wood",
         baseURL = "meandre://seasr.org/components/foundry/",
         firingPolicy = FiringPolicy.all,
         mode = Mode.compute,
@@ -73,7 +73,7 @@ import cc.mallet.types.InstanceList;
         description = "This component perform topic analysis in the style of LDA and its variants using Mallet" ,
         dependency = {"protobuf-java-2.2.0.jar"}
 )
-public class TopicModeling extends AbstractExecutableComponent {
+public class TopicModelingHierarchical extends AbstractExecutableComponent {
 
     //------------------------------ INPUTS ------------------------------------------------------
 
@@ -186,6 +186,7 @@ public class TopicModeling extends AbstractExecutableComponent {
 
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    	//FIXME this is copied from TopicModelling.java - setting up hierarchical LDA is not implemented yet!!
         _numTopics          = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_TOPICS, ccp));
         _numThreads         = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_THREADS, ccp));
         _numIterations      = Integer.parseInt(getPropertyOrDieTrying(PROP_NUM_ITERATIONS, ccp));
