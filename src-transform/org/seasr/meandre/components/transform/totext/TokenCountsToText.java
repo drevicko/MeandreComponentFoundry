@@ -67,6 +67,7 @@ import org.seasr.datatypes.core.Names;
  *
  * @author Xavier Llor&agrave;
  * @author Boris Capitanu
+ * @author Ian Wood
  *
  */
 
@@ -118,15 +119,16 @@ public class TokenCountsToText extends AnalysisToText {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	super.initializeCallBack(ccp);
-        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(textSep.charAt(0));
-        if (bHeaderAdded) fmtBuilder = fmtBuilder.withHeader();
+        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(textSep.charAt(0)).withRecordSeparator(System.getProperty("line.separator"));
+        if (bHeaderAdded) fmtBuilder = fmtBuilder.withHeader(sHeader);
         format = fmtBuilder.build();
     }
     
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
 	    Map<String, Integer> tokenCounts = BasicDataTypesTools.IntegerMapToMap((IntegersMap) cc.getDataComponentFromInput(INPUT_TOKEN_COUNTS));
-
+	    
+	    console.finer("received token counts: "+tokenCounts.toString());
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
 		PrintStream ps = new PrintStream(baos, false, encoding);
 

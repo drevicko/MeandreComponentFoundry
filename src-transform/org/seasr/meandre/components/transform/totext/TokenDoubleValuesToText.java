@@ -115,8 +115,8 @@ public class TokenDoubleValuesToText extends AnalysisToText {
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
     	super.initializeCallBack(ccp);
-        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(textSep.charAt(0));
-        if (bHeaderAdded) fmtBuilder = fmtBuilder.withHeader();
+        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(textSep.charAt(0)).withRecordSeparator(System.getProperty("line.separator"));
+        if (bHeaderAdded) fmtBuilder = fmtBuilder.withHeader(sHeader.split(","));
         format = fmtBuilder.build();
     }
     

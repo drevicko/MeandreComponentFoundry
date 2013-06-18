@@ -138,9 +138,8 @@
 	<classpathentry kind="lib" path="src-gwt/war/WEB-INF/lib/smartgwt.jar"/>
 	<classpathentry kind="lib" path="lib/drevicko-LIWC.jar" sourcepath="/psycholingua/src"/>
 	<classpathentry kind="lib" path="lib/mongo-2.10.1.jar" sourcepath="/mongo-java-driver/src"/>
-	<classpathentry kind="lib" path="lib/commons-csv-rev-1493459.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/seasr-commons-1.4.9.jar"/>
-	<classpathentry kind="src" path="/apache-commons-csv"/>
+	<classpathentry kind="lib" path="lib/commons-csv-rev-1493459.jar" sourcepath="lib/commons-csv-rev-1493459.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

@@ -178,6 +178,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 //    	    CSVParser parser = new CSVParser(new StringReader(text), format); 
 //    	    String[] tokens = uninitialisedLine;
 //    	    while (tokens != null) {
+    		console.finer("received text:\n"+text+"\n");
     	    for (CSVRecord tokens : format.parse(new StringReader(text))) {
 //    	    	tokens = parser.getLine();
 //    	    	if (tokens == null) break;
@@ -186,7 +187,7 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 //    	            continue;
 //    	        }
 //    	        String token = tokens[tokenPos];
-    	    	console.finest("processing row "+tokens.toString());
+    	    	console.fine("processing row "+tokens.toString());
     	    	if (tokens.size() <= tokenPos || tokens.size() <= countPos) {
     	    		console.warning(String.format("csv row %d too short (%d) for count pos %d or token pos %d - discarding",tokens.getRecordNumber(),tokens.size(),countPos,tokenPos));
     	    		continue;
