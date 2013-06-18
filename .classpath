@@ -49,7 +49,7 @@
 	<classpathentry kind="lib" path="lib/gdata-docs-meta-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/gdata-media-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/guava-r09.jar"/>
-	<classpathentry kind="lib" path="lib/gwt/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="lib/gwt/gwt-dev.jar" sourcepath="/home/drevicko/Downloads/downloads/jetty-6.1.26-sources.jar"/>
 	<classpathentry kind="lib" path="lib/gwt/gwt-servlet.jar"/>
 	<classpathentry kind="lib" path="lib/gwt/gwt-user.jar"/>
 	<classpathentry kind="lib" path="lib/gwt/smartgwt.jar"/>
@@ -89,7 +89,7 @@
 	<classpathentry kind="lib" path="lib/mallet-2.0.7-full.jar"/>
 	<classpathentry kind="lib" path="lib/mallet-deps.jar"/>
 	<classpathentry kind="lib" path="lib/maryclient-4.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/meandre-server-1.4.11.jar" sourcepath="/Meandre-Infrastructure"/>
+	<classpathentry kind="lib" path="lib/meandre-server-1.4.11.jar" sourcepath="/Meandre-Infrastructure/src-kernel/code"/>
 	<classpathentry kind="lib" path="lib/models/opennlp-models-chunker.jar"/>
 	<classpathentry kind="lib" path="lib/models/opennlp-models-ner.jar"/>
 	<classpathentry kind="lib" path="lib/models/opennlp-models-pos.jar"/>

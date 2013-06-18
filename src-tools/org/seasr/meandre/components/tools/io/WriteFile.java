@@ -74,10 +74,6 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
 import org.seasr.meandre.support.generic.io.DOMUtils;
 import org.w3c.dom.Document;
 
-import com.ziclix.python.sql.Procedure;
-
-import cc.mallet.types.InstanceList;
-
 /**
  * Writes the given data to a file
  *
