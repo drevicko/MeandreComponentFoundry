@@ -110,6 +110,7 @@ public class PushText extends AbstractExecutableComponent {
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		_text = getPropertyOrDieTrying(PROP_MESSAGE, false, false, ccp);
+		bParseNewlines = Boolean.parseBoolean(ccp.getProperty(PROP_PARSE_NEWLINES));
     	if (bParseNewlines) 
     		_text = _text.replaceAll("\\\\n", "\n");
 		if (_text.length() == 0)
