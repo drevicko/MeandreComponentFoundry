@@ -172,6 +172,9 @@ public class LoadTopicModelState extends AbstractExecutableComponent {
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+    	// FIXME: THIS IS NOT REALLY IMPLEMENTED YET!! DO NOT USE IT!!
+    	throw new Exception("Component Not Implemented!");
+    	
         String location = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_LOCATION))[0];
 
         File file = getLocation(location, _defaultFolder);
