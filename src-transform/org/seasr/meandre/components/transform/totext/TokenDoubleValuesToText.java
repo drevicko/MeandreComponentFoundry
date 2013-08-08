@@ -44,7 +44,12 @@ package org.seasr.meandre.components.transform.totext;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVFormat.CSVFormatBuilder;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.ComponentInput;
 import org.meandre.annotations.ComponentProperty;
@@ -52,6 +57,7 @@ import org.meandre.annotations.Component.FiringPolicy;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.Component.Mode;
 import org.meandre.core.ComponentContext;
+import org.meandre.core.ComponentContextProperties;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.Names;
 import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
@@ -70,9 +76,9 @@ import org.seasr.datatypes.core.BasicDataTypes.DoublesMap;
 		firingPolicy = FiringPolicy.all,
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
-		tags = "token count, text, convert, double, token value, #transform",
+		tags = "token count, text, convert, double, token value, #transform,csv",
 		description = "Given a collection of token values (as doubles), this component converts it " +
-				      "into text. The default separator is a comma, so make sure tokens " +
+				      "into csv text. The default separator is a comma, so make sure tokens " +
 				      "do not have commas or change the separator.",
 		dependency = {"protobuf-java-2.2.0.jar"}
 )
@@ -102,17 +108,35 @@ public class TokenDoubleValuesToText extends AnalysisToText {
 
 	//--------------------------------------------------------------------------------------------
 
+	private CSVFormat format;
+	
+	//--------------------------------------------------------------------------------------------
+
+    @Override
+    public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
+    	super.initializeCallBack(ccp);
+        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(textSep.charAt(0)).withRecordSeparator(System.getProperty("line.separator"));
+        if (bHeaderAdded) fmtBuilder = fmtBuilder.withHeader(sHeader.split(","));
+        format = fmtBuilder.build();
+    }
+    
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-	    DoublesMap tokenValues = (DoublesMap)cc.getDataComponentFromInput(INPUT_TOKEN_VALUES);
+	    Map<String, Double> tokenValues = BasicDataTypesTools.DoubleMapToMap((DoublesMap)cc.getDataComponentFromInput(INPUT_TOKEN_VALUES));
 
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
+		PrintStream ps = new PrintStream(baos,false,encoding);
 
-		printDoublesMap(ps, tokenValues, this.iCount, this.iOffset);
+	    CSVPrinter printer = new CSVPrinter(ps,format);
+	    for (Entry<String, Double> token : tokenValues.entrySet()) {
+	    	printer.printRecord(token.getKey(),token.getValue());
+	    }
+	    printer.close();
+	    
+//		printDoublesMap(ps, tokenValues, this.iCount, this.iOffset);
 //		System.out.println(String.format("TokenDoubleValuesToText: printed %d values making %d chars of output",tokenValues.getKeyCount()-this.iOffset,baos.size()));
-		console.fine(String.format("printed %d values making %d chars of output",tokenValues.getKeyCount()-this.iOffset,baos.size()));
+		console.fine(String.format("printed %d values making %d chars of output",tokenValues.size()-this.iOffset,baos.size()));
 
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString(encoding)));
 	}
 }

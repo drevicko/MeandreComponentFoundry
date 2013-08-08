@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src-analytics"/>
-	<classpathentry excluding="org/monkproject/utils/math/distributions/Beta.java" kind="src" path="src-support"/>
+	<classpathentry kind="src" path="src-support"/>
 	<classpathentry kind="src" path="src-apps"/>
 	<classpathentry kind="src" path="src-evernote"/>
 	<classpathentry kind="src" path="src-GoogleDocs"/>
@@ -49,7 +49,7 @@
 	<classpathentry kind="lib" path="lib/gdata-docs-meta-3.0.jar"/>
 	<classpathentry kind="lib" path="lib/gdata-media-1.0.jar"/>
 	<classpathentry kind="lib" path="lib/guava-r09.jar"/>
-	<classpathentry kind="lib" path="lib/gwt/gwt-dev.jar"/>
+	<classpathentry kind="lib" path="lib/gwt/gwt-dev.jar" sourcepath="/home/drevicko/Downloads/downloads/jetty-6.1.26-sources.jar"/>
 	<classpathentry kind="lib" path="lib/gwt/gwt-servlet.jar"/>
 	<classpathentry kind="lib" path="lib/gwt/gwt-user.jar"/>
 	<classpathentry kind="lib" path="lib/gwt/smartgwt.jar"/>
@@ -89,7 +89,7 @@
 	<classpathentry kind="lib" path="lib/mallet-2.0.7-full.jar"/>
 	<classpathentry kind="lib" path="lib/mallet-deps.jar"/>
 	<classpathentry kind="lib" path="lib/maryclient-4.3.0.jar"/>
-	<classpathentry kind="lib" path="lib/meandre-server-1.4.11.jar" sourcepath="/Meandre-Infrastructure"/>
+	<classpathentry kind="lib" path="lib/meandre-server-1.4.11.jar" sourcepath="/Meandre-Infrastructure/src-kernel/code"/>
 	<classpathentry kind="lib" path="lib/models/opennlp-models-chunker.jar"/>
 	<classpathentry kind="lib" path="lib/models/opennlp-models-ner.jar"/>
 	<classpathentry kind="lib" path="lib/models/opennlp-models-pos.jar"/>
@@ -121,7 +121,7 @@
 	<classpathentry kind="lib" path="lib/slf4j-log4j12-1.6.1.jar"/>
 	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.2.jar"/>
 	<classpathentry kind="lib" path="lib/StandAloneGaz.jar"/>
-	<classpathentry kind="lib" path="lib/stanford-ner.jar"/>
+	<classpathentry kind="lib" path="lib/stanford-ner.jar" sourcepath="/home/drevicko/workspace-psycholingua/stanford-ner-2013-04-04/stanford-ner-1.2.8-sources.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-parser.jar"/>
 	<classpathentry kind="lib" path="lib/stanford-postagger.jar"/>
 	<classpathentry kind="lib" path="lib/stanfordModels.jar"/>
@@ -140,5 +140,6 @@
 	<classpathentry kind="lib" path="lib/mongo-2.10.1.jar" sourcepath="/mongo-java-driver/src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="lib" path="lib/seasr-commons-1.4.9.jar"/>
+	<classpathentry kind="lib" path="lib/commons-csv-rev-1493459.jar" sourcepath="lib/commons-csv-rev-1493459.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

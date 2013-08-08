@@ -42,7 +42,13 @@
 
 package org.seasr.meandre.components.vis.d3;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -54,6 +60,8 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
+import org.meandre.core.system.components.ext.StreamInitiator;
+import org.meandre.core.system.components.ext.StreamTerminator;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
 import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
@@ -74,7 +82,7 @@ import org.seasr.meandre.components.vis.html.VelocityTemplateToHTML;
         name = "Tag Cloud",
         tags = "#VIS, visualization, d3, tag cloud",
         rights = Licenses.UofINCSA,
-        firingPolicy = FiringPolicy.all,
+        firingPolicy = FiringPolicy.any,
         baseURL = "meandre://seasr.org/components/foundry/",
         dependency = { "velocity-1.7-dep.jar", "d3-v2.8.1.jar", "d3.layout.cloud.jar" },
         resources  = { "TagCloud.vm" }
@@ -91,7 +99,15 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
     )
     protected static final String IN_TOKEN_COUNTS = Names.PORT_TOKEN_COUNTS;
 
-    //------------------------------ OUTPUTS -----------------------------------------------------
+    @ComponentInput(
+            name = Names.PORT_DOC_TITLE,
+            description = "A label to show abovbe the tag cloud" +
+                "<br>TYPE: org.seasr.datatypes.BasicDataTypes.Strings" +
+                "<br>TYPE: java.lang.String"
+    )
+    protected static final String IN_LABEL = Names.PORT_DOC_TITLE;
+
+   //------------------------------ OUTPUTS -----------------------------------------------------
 
     @ComponentOutput(
             name = Names.PORT_HTML,
@@ -111,7 +127,7 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 
     private static final String DEFAULT_TEMPLATE = "org/seasr/meandre/components/vis/d3/TagCloud.vm";
     @ComponentProperty(
-            description = "The template name",
+            description = "The template name. The default is "+DEFAULT_TEMPLATE,
             name = VelocityTemplateToHTML.PROP_TEMPLATE,
             defaultValue = DEFAULT_TEMPLATE
     )
@@ -154,32 +170,38 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
 
     @ComponentProperty(
             defaultValue = "linear",
-            description = "The scale to use, one of:<br><ul>" +
-            		"<li>linear</li>" +
-            		"<li>log</li>" +
-            		"<li>sqrt</li>" +
-            		"</ul>",
+            description = "The scale to use, one of:" +
+            		"linear, log, sqrt",
             name = "scale"
     )
     protected static final String PROP_SCALE = "scale";
 
     @ComponentProperty(
             defaultValue = "category20",
-            description = "Color palette to use:<br><ul>" +
-            		"<li>category10 - ten categorical colors: <font color='#1f77b4'>#1f77b4</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#2ca02c'>#2ca02c</font> <font color='#d62728'>#d62728</font> <font color='#9467bd'>#9467bd</font> <font color='#8c564b'>#8c564b</font> <font color='#e377c2'>#e377c2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#bcbd22'>#bcbd22</font> <font color='#17becf'>#17becf</font></li>" +
-            		"<li>category20 - twenty categorical colors: <font color='#1f77b4'>#1f77b4</font> <font color='#aec7e8'>#aec7e8</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#ffbb78'>#ffbb78</font> <font color='#2ca02c'>#2ca02c</font> <font color='#98df8a'>#98df8a</font> <font color='#d62728'>#d62728</font> <font color='#ff9896'>#ff9896</font> <font color='#9467bd'>#9467bd</font> <font color='#c5b0d5'>#c5b0d5</font> <font color='#8c564b'>#8c564b</font> <font color='#c49c94'>#c49c94</font> <font color='#e377c2'>#e377c2</font> <font color='#f7b6d2'>#f7b6d2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#c7c7c7'>#c7c7c7</font> <font color='#bcbd22'>#bcbd22</font> <font color='#dbdb8d'>#dbdb8d</font> <font color='#17becf'>#17becf</font> <font color='#9edae5'>#9edae5</font></li>" +
-            		"<li>category20b - twenty categorical colors: <font color='#393b79'>#393b79</font> <font color='#5254a3'>#5254a3</font> <font color='#6b6ecf'>#6b6ecf</font> <font color='#9c9ede'>#9c9ede</font> <font color='#637939'>#637939</font> <font color='#8ca252'>#8ca252</font> <font color='#b5cf6b'>#b5cf6b</font> <font color='#cedb9c'>#cedb9c</font> <font color='#8c6d31'>#8c6d31</font> <font color='#bd9e39'>#bd9e39</font> <font color='#e7ba52'>#e7ba52</font> <font color='#e7cb94'>#e7cb94</font> <font color='#843c39'>#843c39</font> <font color='#ad494a'>#ad494a</font> <font color='#d6616b'>#d6616b</font> <font color='#e7969c'>#e7969c</font> <font color='#7b4173'>#7b4173</font> <font color='#a55194'>#a55194</font> <font color='#ce6dbd'>#ce6dbd</font> <font color='#de9ed6'>#de9ed6</font></li>" +
-            		"<li>category20c - twenty categorical colors: <font color='#3182bd'>#3182bd</font> <font color='#6baed6'>#6baed6</font> <font color='#9ecae1'>#9ecae1</font> <font color='#c6dbef'>#c6dbef</font> <font color='#e6550d'>#e6550d</font> <font color='#fd8d3c'>#fd8d3c</font> <font color='#fdae6b'>#fdae6b</font> <font color='#fdd0a2'>#fdd0a2</font> <font color='#31a354'>#31a354</font> <font color='#74c476'>#74c476</font> <font color='#a1d99b'>#a1d99b</font> <font color='#c7e9c0'>#c7e9c0</font> <font color='#756bb1'>#756bb1</font> <font color='#9e9ac8'>#9e9ac8</font> <font color='#bcbddc'>#bcbddc</font> <font color='#dadaeb'>#dadaeb</font> <font color='#636363'>#636363</font> <font color='#969696'>#969696</font> <font color='#bdbdbd'>#bdbdbd</font> <font color='#d9d9d9'>#d9d9d9</font></li>" +
-            		"</ul>",
+            description = "Color palette to use:<br><dl>" +
+            		"<dt>category10 - ten categorical colors: </dt><dd><font color='#1f77b4'>#1f77b4</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#2ca02c'>#2ca02c</font> <font color='#d62728'>#d62728</font> <font color='#9467bd'>#9467bd</font> <font color='#8c564b'>#8c564b</font> <font color='#e377c2'>#e377c2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#bcbd22'>#bcbd22</font> <font color='#17becf'>#17becf</font></dd>" +
+            		"<dt>category20 - twenty categorical colors: </dt><dd><font color='#1f77b4'>#1f77b4</font> <font color='#aec7e8'>#aec7e8</font> <font color='#ff7f0e'>#ff7f0e</font> <font color='#ffbb78'>#ffbb78</font> <font color='#2ca02c'>#2ca02c</font> <font color='#98df8a'>#98df8a</font> <font color='#d62728'>#d62728</font> <font color='#ff9896'>#ff9896</font> <font color='#9467bd'>#9467bd</font> <font color='#c5b0d5'>#c5b0d5</font> <font color='#8c564b'>#8c564b</font> <font color='#c49c94'>#c49c94</font> <font color='#e377c2'>#e377c2</font> <font color='#f7b6d2'>#f7b6d2</font> <font color='#7f7f7f'>#7f7f7f</font> <font color='#c7c7c7'>#c7c7c7</font> <font color='#bcbd22'>#bcbd22</font> <font color='#dbdb8d'>#dbdb8d</font> <font color='#17becf'>#17becf</font> <font color='#9edae5'>#9edae5</font></dd>" +
+            		"<dt>category20b - twenty categorical colors: </dt><dd><font color='#393b79'>#393b79</font> <font color='#5254a3'>#5254a3</font> <font color='#6b6ecf'>#6b6ecf</font> <font color='#9c9ede'>#9c9ede</font> <font color='#637939'>#637939</font> <font color='#8ca252'>#8ca252</font> <font color='#b5cf6b'>#b5cf6b</font> <font color='#cedb9c'>#cedb9c</font> <font color='#8c6d31'>#8c6d31</font> <font color='#bd9e39'>#bd9e39</font> <font color='#e7ba52'>#e7ba52</font> <font color='#e7cb94'>#e7cb94</font> <font color='#843c39'>#843c39</font> <font color='#ad494a'>#ad494a</font> <font color='#d6616b'>#d6616b</font> <font color='#e7969c'>#e7969c</font> <font color='#7b4173'>#7b4173</font> <font color='#a55194'>#a55194</font> <font color='#ce6dbd'>#ce6dbd</font> <font color='#de9ed6'>#de9ed6</font></dd>" +
+            		"<dt>category20c - twenty categorical colors: </dt><dd><font color='#3182bd'>#3182bd</font> <font color='#6baed6'>#6baed6</font> <font color='#9ecae1'>#9ecae1</font> <font color='#c6dbef'>#c6dbef</font> <font color='#e6550d'>#e6550d</font> <font color='#fd8d3c'>#fd8d3c</font> <font color='#fdae6b'>#fdae6b</font> <font color='#fdd0a2'>#fdd0a2</font> <font color='#31a354'>#31a354</font> <font color='#74c476'>#74c476</font> <font color='#a1d99b'>#a1d99b</font> <font color='#c7e9c0'>#c7e9c0</font> <font color='#756bb1'>#756bb1</font> <font color='#9e9ac8'>#9e9ac8</font> <font color='#bcbddc'>#bcbddc</font> <font color='#dadaeb'>#dadaeb</font> <font color='#636363'>#636363</font> <font color='#969696'>#969696</font> <font color='#bdbdbd'>#bdbdbd</font> <font color='#d9d9d9'>#d9d9d9</font></dd>" +
+            		"</dl>",
             name = "color_palette"
     )
     protected static final String PROP_COLOR_PALETTE = "color_palette";
 
     //--------------------------------------------------------------------------------------------
-
+    
+    protected Boolean labelsConnected;
+    protected HashMap<String,Set<Integer>> initiatorsReceived = new HashMap<String,Set<Integer>>();
+    protected HashMap<String,Set<Integer>> terminatorsReceived = new HashMap<String,Set<Integer>>();
+    
     @Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         super.initializeCallBack(ccp);
+        
+        for (String input : ccp.getConnectedInputs()) {
+        	initiatorsReceived.put(input,new TreeSet<Integer>());
+        	terminatorsReceived.put(input,new TreeSet<Integer>());
+        }
 
         context.put("title", getPropertyOrDieTrying(PROP_TITLE, ccp));
         context.put("width", getPropertyOrDieTrying(PROP_WIDTH, ccp));
@@ -193,29 +215,122 @@ public class TagCloud extends AbstractD3CloudLayoutComponent {
         if (fontName.length() == 0) fontName = null;
 
         context.put("fontName", fontName);
+        //TODO: isComponentInputConnected() is returning true when it's not connected ):
+        //labelsConnected = isComponentInputConnected(IN_LABEL);
+        labelsConnected = Arrays.asList(ccp.getConnectedInputs()).contains(IN_LABEL);
+        console.finest("Label input "+(labelsConnected ? "is" : "is not")+" connected, connected inputs "+Arrays.toString(ccp.getConnectedInputs()));
     }
 
     @Override
     public void executeCallBack(ComponentContext cc) throws Exception {
-        Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(cc.getDataComponentFromInput(IN_TOKEN_COUNTS));
+	    for (String portName : new String[] { IN_LABEL, IN_TOKEN_COUNTS })
+	        componentInputCache.storeIfAvailable(cc, portName);
+    	console.finest("execute callback entry, caches have sizes label: "+componentInputCache.getDataCount(IN_LABEL)+", count:"+componentInputCache.getDataCount(IN_TOKEN_COUNTS));
 
-        JSONArray words = new JSONArray();
-        JSONArray counts = new JSONArray();
+	    while (componentInputCache.hasData(IN_TOKEN_COUNTS) && (!labelsConnected || componentInputCache.hasData(IN_LABEL) )) {
+	    	console.finest("execute callback loop,  caches have sizes label: "+componentInputCache.getDataCount(IN_LABEL)+", count:"+componentInputCache.getDataCount(IN_TOKEN_COUNTS));
+	    	String label = null;
+	    	if (labelsConnected) {
+	    		Object input = componentInputCache.retrieveNext(IN_LABEL);
+	    		if (input != null) {
+	    			label = DataTypeParser.parseAsString(input)[0];
+	    			console.finest("Setting up label '"+label+"' from connected inputs "+Arrays.toString(cc.getConnectedInputs()));
+	    		} else 
+	    			console.warning("No label when it was expected!");
+	    	}
 
-        for (Map.Entry<String, Integer> entry : tokenCounts.entrySet()) {
-            String word = entry.getKey();
-            Integer count = entry.getValue();
+	    	console.finest("Generating tag cloud");
 
-            words.put(word);
-            counts.put(count);
-        }
+	    	Map<String, Integer> tokenCounts = DataTypeParser.parseAsStringIntegerMap(componentInputCache.retrieveNext(IN_TOKEN_COUNTS));
 
-        JSONObject data = new JSONObject();
-        data.put("words", words);
-        data.put("counts", counts);
+	    	JSONArray words = new JSONArray();
+	    	JSONArray counts = new JSONArray();
 
-        context.put("data", data.toString());
+	    	for (Map.Entry<String, Integer> entry : tokenCounts.entrySet()) {
+	    		String word = entry.getKey();
+	    		Integer count = entry.getValue();
 
-        super.executeCallBack(componentContext);
+	    		words.put(word);
+	    		counts.put(count);
+	    	}
+
+	    	JSONObject data = new JSONObject();
+	    	data.put("words", words);
+	    	data.put("counts", counts);
+
+	    	context.put("data", data.toString());
+	    	if (labelsConnected) {
+	    		context.put("label", label);
+	    	}
+	    	console.info("Put " + data.toString().length() + " of data"+(labelsConnected ? " with label '"+label+"'" : " without label") );
+
+	    	super.executeCallBack(componentContext);
+	    }
+	    console.finest("execute callback exit,  caches have sizes label: "+componentInputCache.getDataCount(IN_LABEL)+", count:"+componentInputCache.getDataCount(IN_TOKEN_COUNTS));
     }
+    
+    @Override
+    public void handleStreamInitiators() throws Exception {
+        console.entering(getClass().getName(), "handleStreamInitiators", inputPortsWithInitiators);
+        for (String portWithInitiator : inputPortsWithInitiators) {
+        	StreamInitiator si = (StreamInitiator) componentContext.getDataComponentFromInput(portWithInitiator);
+        	if (!initiatorsReceived.containsKey(portWithInitiator)) {
+        		console.warning("uninitialised initiator list "+portWithInitiator+"! Others are: "+initiatorsReceived.keySet());
+        		initiatorsReceived.put(portWithInitiator, new TreeSet<Integer>());
+        	}
+        	Set<Integer> initiatorSet = initiatorsReceived.get(portWithInitiator);
+        	initiatorSet.add(si.getStreamId());
+        	Boolean allPorts = true;
+        	for (Entry<String, Set<Integer>> portEntry : initiatorsReceived.entrySet()) {
+        		if (!portEntry.getValue().contains(si.getStreamId()) ) {
+        			allPorts = false;
+        			break;
+        		}
+        	}
+        	if (allPorts) {
+        		for (Entry<String, Set<Integer>> portEntry : initiatorsReceived.entrySet()) {
+        			portEntry.getValue().remove(si.getStreamId());
+        		}
+        		for (String portName : componentContext.getOutputNames()) {
+//        			componentContext.getConnectedOutputs();
+        			if (portName.equals(OUT_ERROR)) continue;
+        			componentContext.pushDataComponentToOutput(portName, si);
+        		}
+        	}
+        }
+        console.exiting(getClass().getName(), "handleStreamInitiators");
+    }
+
+    @Override
+    public void handleStreamTerminators() throws Exception {
+        console.entering(getClass().getName(), "handleStreamTerminators", inputPortsWithTerminators);
+        
+        for (String portWithTerminator : inputPortsWithTerminators) {
+        	StreamTerminator st = (StreamTerminator) componentContext.getDataComponentFromInput(portWithTerminator);
+        	if (!terminatorsReceived.containsKey(portWithTerminator)) {
+        		console.warning("uninitialised terminator list "+portWithTerminator+"! Others are: "+terminatorsReceived.keySet());
+        		terminatorsReceived.put(portWithTerminator, new TreeSet<Integer>());
+        	}
+        	terminatorsReceived.get(portWithTerminator).add(st.getStreamId());
+        	Boolean allPorts = true;
+        	for (Entry<String, Set<Integer>> portEntry : terminatorsReceived.entrySet()) {
+        		if (!portEntry.getValue().contains(st.getStreamId()) ) {
+        			allPorts = false;
+        			break;
+        		}
+        	}
+        	if (allPorts) {
+        		for (Entry<String, Set<Integer>> portEntry : terminatorsReceived.entrySet()) {
+        			portEntry.getValue().remove(st.getStreamId());
+        		}
+        		for (String portName : componentContext.getOutputNames()) {
+//        			componentContext.getConnectedOutputs();
+        			if (portName.equals(OUT_ERROR)) continue;
+        			componentContext.pushDataComponentToOutput(portName, st);
+        		}
+        	}
+        }
+        console.exiting(getClass().getName(), "handleStreamTerminators");
+    }
+
 }

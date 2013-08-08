@@ -76,7 +76,7 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
 	@ComponentProperty(
 			name = Names.PROP_SEPARATOR,
-			description = "Used to separate field values",
+			description = "Used to separate field values. To use a tab character, input '\\t'",
 			defaultValue = ","
 	)
 	protected static final String PROP_TEXT_SEPARATOR = Names.PROP_SEPARATOR;
@@ -105,6 +105,15 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	)
 	protected static final String PROP_COUNT = Names.PROP_COUNT;
 
+	@ComponentProperty(
+			name = "encoding",
+			description = "The name of the character encoding of the text (see " +
+					"java.nio.charset.Charset). Currently only used in " +
+					"the Token Counts to Text component.",
+		    defaultValue = "UTF-8"
+	)
+	protected static final String PROP_ENCODING = "encoding";
+
 	//--------------------------------------------------------------------------------------------
 
 
@@ -123,6 +132,8 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 	/** The printing separator */
 	String textSep;
 
+	/** The character set of the text */
+	String encoding;
 
 	//--------------------------------------------------------------------------------------------
 
@@ -136,6 +147,8 @@ public abstract class AnalysisToText extends AbstractExecutableComponent {
 
 		this.textSep = getPropertyOrDieTrying(PROP_TEXT_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
 		this.sHeader = this.sHeader.replaceAll(",", this.textSep);
+		
+		this.encoding = getPropertyOrDieTrying(PROP_ENCODING, false, true, ccp);
 	}
 
 	@Override

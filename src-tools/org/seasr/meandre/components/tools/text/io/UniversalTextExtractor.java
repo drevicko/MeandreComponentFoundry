@@ -71,10 +71,12 @@ import org.seasr.meandre.support.generic.text.handlers.TextContentHandlerFactory
 @Component(
         creator = "Boris Capitanu",
         description = "Extracts text from the specified input location. " +
-                      "Supported location references include: PDF files, HTML/XML files, text files.",
+                      "Supported location references include: PDF files, HTML/XML files, text files. " +
+                      "For utf-8 XML files, you should use the 'Read XML' component which properly " +
+                      "handles the utf-8 BOM (XML from this component may cause a SAXParseException).",
         name = "Universal Text Extractor",
         rights = Licenses.UofINCSA,
-        tags = "#TRANSFORM, text, convert, pdf, html, xml",
+        tags = "#input, text, convert, pdf, html, xml",
         dependency = {"protobuf-java-2.2.0.jar", "htmlparser.jar", "jPod.jar", "iscwt.jar", "isrt.jar", "jbig2.jar"},
         baseURL = "meandre://seasr.org/components/foundry/"
 )

@@ -42,9 +42,14 @@
 
 package org.seasr.meandre.components.transform.text;
 
+import java.io.StringReader;
 import java.util.Hashtable;
-import java.util.StringTokenizer;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVFormat.CSVFormatBuilder;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
+//import org.apache.commons.csv.CSVStrategy;
 import org.meandre.annotations.Component;
 import org.meandre.annotations.Component.Licenses;
 import org.meandre.annotations.ComponentInput;
@@ -52,7 +57,6 @@ import org.meandre.annotations.ComponentOutput;
 import org.meandre.annotations.ComponentProperty;
 import org.meandre.core.ComponentContext;
 import org.meandre.core.ComponentContextProperties;
-import org.meandre.core.ComponentExecutionException;
 import org.seasr.datatypes.core.BasicDataTypesTools;
 import org.seasr.datatypes.core.DataTypeParser;
 import org.seasr.datatypes.core.Names;
@@ -65,8 +69,9 @@ import org.seasr.meandre.components.abstracts.AbstractExecutableComponent;
  */
 
 @Component(
-        creator = "Boris Capitanu",
-        description = "Converts CSV text to token counts structure.",
+        creator = "Boris Capitanu,Ian Wood",
+        description = "Converts CSV text to token counts structure. It respects double quoted fields (which may contin" +
+        		"delimiters). Double quotes within a quoted field may be represented by two double quote characters.",
         name = "CSV Text To Token Counts",
         tags = "#TRANSFORM, CSV, text, token count",
         rights = Licenses.UofINCSA,
@@ -108,7 +113,8 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
     @ComponentProperty(
             name = "tokenSeparator",
-            description = "The token to use to separate the field values. Use \\t if the separator is the tab character.",
+            description = "The token to use to separate the field values. Use \\t if the separator is the tab character. " +
+            		"In all other cases, all characters after the first character are discarded.",
             defaultValue = ","
     )
     protected static final String PROP_TOKEN_SEPARATOR = "tokenSeparator";
@@ -122,7 +128,8 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
     @ComponentProperty(
             name = "count_pos",
-            description = "The position of the count (the 'count' column) in the CSV (0=first, 1=second, etc.)",
+            description = "The position of the count (the 'count' column) in the CSV (0=first, 1=second, etc.). The " +
+            		"count field of the csv text should contain only decimal digits 0-9.",
             defaultValue = "1"
     )
     protected static final String PROP_COUNT_POS = "count_pos";
@@ -138,8 +145,11 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
 
 
     private boolean bHeader, bOrdered;
-    private String separator;
+    private char separator;
     private int tokenPos, countPos;
+//    private CSVStrategy strategy;
+    private CSVFormat format;
+//    private static String[] uninitialisedLine = {};
 
 
     //--------------------------------------------------------------------------------------------
@@ -148,7 +158,11 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
         bHeader = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_HEADER, true, true, ccp));
         bOrdered = Boolean.parseBoolean(getPropertyOrDieTrying(PROP_ORDERED, true, true, ccp));
-        separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t");
+        separator = getPropertyOrDieTrying(PROP_TOKEN_SEPARATOR, false, true, ccp).replaceAll("\\\\t", "\t").charAt(0);
+//        strategy = new CSVStrategy(separator, '"', CSVStrategy.COMMENTS_DISABLED);
+        CSVFormatBuilder fmtBuilder = CSVFormat.newBuilder(separator);
+        if (bHeader) fmtBuilder = fmtBuilder.withHeader();
+        format = fmtBuilder.build();
         tokenPos = Integer.parseInt(getPropertyOrDieTrying(PROP_TOKEN_POS, ccp));
         countPos = Integer.parseInt(getPropertyOrDieTrying(PROP_COUNT_POS, ccp));
     }
@@ -158,36 +172,40 @@ public class CSVTextToTokenCounts extends AbstractExecutableComponent{
     	Hashtable<String,Integer> htCounts = new Hashtable<String,Integer>();
 
     	for (String text : DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_TEXT))) {
-    	    boolean skippedHeader = false;
-
-    	    StringTokenizer st = new StringTokenizer(text, "\n");  // tokenize each line
-    	    while (st.hasMoreTokens()) {
-    	        if (bHeader && !skippedHeader) {
-    	            st.nextToken();
-    	            skippedHeader = true;
-    	            continue;
-    	        }
-
-    	        String line = st.nextToken();
-                String[] tokens = line.split(separator);
-    	        if (tokens.length < (Math.max(tokenPos, countPos) + 1))
-    	            throw new ComponentExecutionException(String.format("CSV line: '%s' does not contain enough values", line));
-
-    	        String token = tokens[tokenPos];
+//    	    boolean skippedHeader = false;
+    	    //String[][] data = ... .getAllValues();
+//    	    CSVParser parser = new CSVParser(new StringReader(text), strategy); 
+//    	    CSVParser parser = new CSVParser(new StringReader(text), format); 
+//    	    String[] tokens = uninitialisedLine;
+//    	    while (tokens != null) {
+    		console.finer("received text:\n"+text+"\n");
+    	    for (CSVRecord tokens : format.parse(new StringReader(text))) {
+//    	    	tokens = parser.getLine();
+//    	    	if (tokens == null) break;
+//    	        if (bHeader && !skippedHeader) {
+//    	            skippedHeader = true;
+//    	            continue;
+//    	        }
+//    	        String token = tokens[tokenPos];
+    	    	console.fine("processing row "+tokens.toString());
+    	    	if (tokens.size() <= tokenPos || tokens.size() <= countPos) {
+    	    		console.warning(String.format("csv row %d too short (%d) for count pos %d or token pos %d - discarding",tokens.getRecordNumber(),tokens.size(),countPos,tokenPos));
+    	    		continue;
+    	    	}
+    	        String token = tokens.get(tokenPos);
     	        int count = 0;
     	        try {
-    	        	count = Integer.parseInt(tokens[countPos]);
+    	        	count = Integer.parseInt(tokens.get(countPos));
     	        } catch (NumberFormatException e) {
-    	        	console.warning(String.format("Token '%s' had malformed count '%s' - assigning zero!", token, tokens[countPos]));
+    	        	console.warning(String.format("Token '%s' had malformed count '%s' - assigning zero!", token, tokens.get(countPos)));
     	        }
 
     	        if (htCounts.containsKey(token))
-    	            console.warning(String.format("Token '%s' occurs more than once in the dataset - replacing previous count...", token));
+    	            console.warning(String.format("Token '%s' occurs more than once in the dataset - replacing previous count %d with %d...", token,htCounts.get(token),count));
 
     	        htCounts.put(token, count);
     	    }
         }
-
     	cc.pushDataComponentToOutput(OUT_TOKEN_COUNTS, BasicDataTypesTools.mapToIntegerMap(htCounts, bOrdered));
     }
 
