@@ -115,7 +115,8 @@ public class TriggerMessageStreamPassthrough extends AbstractExecutableComponent
 
     @ComponentProperty (
             description = "Set to true to reset the state after an object has been pushed out. This means that for each " +
-                    "trigger a new object will be expected to be pushed out.",
+                    "trigger, the component will retrieve and push out a new object. Any excess triggers or objects will " +
+                    "not be pushed.",
             name = "reset_on_push",
             defaultValue = "false"
     )

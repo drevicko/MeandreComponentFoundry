@@ -83,9 +83,10 @@ import org.xml.sax.SAXException;
 		mode = Mode.compute,
 		rights = Licenses.UofINCSA,
 		tags = "#INPUT, semantic, io, read, xml",
-		description = "This component reads a XML. The XML location is specified " +
-				      "in the input. Also, it is able to read from URLs and local files " +
-				      "using URL of file syntax. The component outputs the semantic model " +
+		description = "This component reads XML from the specified input location. " +
+				      "The locatoin can be a URL or a server-local file " +
+				      "using the 'file://...' URL syntax (the path should be realtive to the " +
+				      "meander-instance folder for this server). The component outputs the semantic model " +
 				      "read. A property allows to control the behaviour of the component in " +
 				      "front of an IO error, allowing to continue pushing and empty XML or " +
 				      "throwing and exception forcing the finalization of the flow execution.",

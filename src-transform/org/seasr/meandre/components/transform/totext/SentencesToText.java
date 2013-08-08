@@ -107,9 +107,9 @@ public class SentencesToText extends AnalysisToText {
     public void executeCallBack(ComponentContext cc) throws Exception {
 	    String[] sentences = DataTypeParser.parseAsString(cc.getDataComponentFromInput(IN_SENTENCES));
 		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		PrintStream ps = new PrintStream(baos);
+		PrintStream ps = new PrintStream(baos,false,encoding);
 		printStrings(ps, sentences, this.iCount, this.iOffset);
 
-		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString()));
+		cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(baos.toString(encoding)));
 	}
 }

@@ -111,7 +111,8 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
 	        				"... other 'fixed' css definitions...<br>" +
 	        				"$_css<br>" +
 	        				"&lt;/style&gt;<br>" +
-	        				"Should not include the &lt;style&gt; tags in the value of this property!",
+	        				"You should not include the &lt;style&gt; tags in the value of this property!. " +
+	        				"Currently only org/seasr/meandre/components/vis/d3/ForceDirectedGraph.vm uses this property.",
 	        name = Names.PROP_CSS,
 	        defaultValue = ""
 	)
@@ -197,6 +198,7 @@ public class VelocityTemplateToHTML extends AbstractExecutableComponent {
         // render the template
         VelocityTemplateService velocity = VelocityTemplateService.getInstance();
         String html = velocity.generateOutput(context, templateName);
+        console.info("Pushing velocity html of length " + html.length() + " from template "+templateName+" with context "+context	);
  		cc.pushDataComponentToOutput(OUT_HTML, html);
     }
 

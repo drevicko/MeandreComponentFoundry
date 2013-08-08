@@ -70,9 +70,9 @@ import org.seasr.meandre.support.generic.io.IOUtils;
 @Component(
         creator = "Boris Capitanu",
         description = "Arranges multiple HTML documents into a single web page from "+
-        "all HTML documents that are part of a stream. Two layouts currently exist. "+
+        "all HTML documents that are part of a stream. Two layouts currently exist. <br/>"+
         "1) FrameMaker.vm fits all frames in the browser window and adjusts size of " +
-            "each frame using the number of columns provided."+
+            "each frame using the number of columns provided.<br/>"+
         "2) iFrameViewer.vm allows the frame size to be set as pixels for column for each HTML document "+
             "and thus allows as much scrolling as needed",
         name = "Frame Maker",
@@ -130,6 +130,14 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
     )
     protected static final String PROP_COLUMNS = "columns";
 
+    @ComponentProperty(
+            description = "Setting to determine the width (in pixels) of the frames for iFrameViewer.vm. "+
+            "For FrameMaker.vm this has no effect.",
+            name = "height",
+            defaultValue = ""
+    )
+    protected static final String PROP_HEIGHT = "height";
+
     //--------------------------------------------------------------------------------------------
 
     protected static final String FRAME_MAKER_HOME = "frame_maker";
@@ -140,6 +148,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
     protected List<String> _htmlDocs = new ArrayList<String>();
     protected List<File> _tmpFiles = new ArrayList<File>();
     protected int _columns;
+    protected int _height;
     protected boolean _isStreaming;
 
 
@@ -151,6 +160,9 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 
         _template = getPropertyOrDieTrying(PROP_TEMPLATE, ccp);
         _columns = Integer.parseInt(getPropertyOrDieTrying(PROP_COLUMNS, ccp));
+        String h = getPropertyOrDieTrying(PROP_HEIGHT, ccp);
+        if (h == "") _height = -1;
+        else _height = Integer.parseInt(h);
 
 		_parent = new File(ccp.getPublicResourcesDirectory(), FRAME_MAKER_HOME);
         _parent.mkdirs();
@@ -199,6 +211,7 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
 	public void startStream() throws Exception {
 		_htmlDocs.clear();
 		_isStreaming = true;
+		console.finer("Starting Stream");
 	}
 
 	@Override
@@ -210,8 +223,10 @@ public class FrameMaker extends AbstractStreamingExecutableComponent {
         context.put("htmlDocs", _htmlDocs);
         context.put("rows", (int)Math.ceil(_htmlDocs.size() / (double)_columns));
 		context.put("columns", _columns);
+		if (_height >= 0) context.put("height", _height);
 
         String html = velocity.generateOutput(context, _template);
+		console.finer("Ending Stream, pushing "+_htmlDocs.size()+" docs, "+html.length()+" chars of html");
         componentContext.pushDataComponentToOutput(OUT_HTML, html);
 
 		_isStreaming = false;

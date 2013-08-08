@@ -91,10 +91,18 @@ public class PushText extends AbstractExecutableComponent {
     )
     protected static final String PROP_MESSAGE = Names.PROP_MESSAGE;
 
+    @ComponentProperty(
+            name = "parse_newlines",
+            description = "Should the string '\\n' in a replacement expression be interpreted as a newline?",
+            defaultValue = "true"
+    )
+    protected static final String PROP_PARSE_NEWLINES = "parse_newlines";
+    
 	//--------------------------------------------------------------------------------------------
 
 
 	private String _text;
+	private boolean bParseNewlines;
 
 
 	//--------------------------------------------------------------------------------------------
@@ -102,12 +110,16 @@ public class PushText extends AbstractExecutableComponent {
 	@Override
     public void initializeCallBack(ComponentContextProperties ccp) throws Exception {
 		_text = getPropertyOrDieTrying(PROP_MESSAGE, false, false, ccp);
+		bParseNewlines = Boolean.parseBoolean(ccp.getProperty(PROP_PARSE_NEWLINES));
+    	if (bParseNewlines) 
+    		_text = _text.replaceAll("\\\\n", "\n");
 		if (_text.length() == 0)
 		    console.warning("Pushing the empty string");
 	}
 
 	@Override
     public void executeCallBack(ComponentContext cc) throws Exception {
+		console.fine("Pushing:\n"+_text+"\n");
 	    cc.pushDataComponentToOutput(OUT_TEXT, BasicDataTypesTools.stringToStrings(_text));
 	}
 

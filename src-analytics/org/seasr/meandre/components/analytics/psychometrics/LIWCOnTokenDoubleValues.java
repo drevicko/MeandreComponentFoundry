@@ -86,11 +86,11 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
     //------------------------------ INPUTS ------------------------------------------------------
 
     @ComponentInput(
-            name = "topic_word_distributions",
+            name = "topic_word_distribution",
             description = "The words and associated probabilities as double values " +
             "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
     )
-    protected static final String INPUT_WORD_DISTRIBUTION = "topic_word_distributions";
+    protected static final String INPUT_WORD_DISTRIBUTION = "topic_word_distribution";
 
     //------------------------------ OUTPUTS -----------------------------------------------------
 
@@ -102,12 +102,12 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
     protected static final String OUT_LIWC_SCORES = "LIWC_scores";
 
 	@ComponentOutput(
-	        name = "topic_size",
-	        description = "The calculated LIWC scores." +
+	        name = "topic_word_distribution",
+	        description = "The words and associated probabilities as double values that were input." +
                 "<br>TYPE: org.seasr.datatypes.core.BasicDataTypes.DoublesMap"
 	)
 
-    protected static final String OUT_WORD_DISTRIBUTION = "topic_size";
+    protected static final String OUT_WORD_DISTRIBUTION = "topic_word_distribution";
 
     //------------------------------ PROPERTIES --------------------------------------------------
 
@@ -143,12 +143,11 @@ public class LIWCOnTokenDoubleValues extends AbstractExecutableComponent {
 	    	console.warning(String.format("Failed to calculate LIWC values! : %s", e.getMessage()));
 	    	LIWC_Values = new WordClassFloatCount[0];
 	    }
-		System.out.print("LIWCOnTokenDoubleValues:");
+		
 		Map<String, Double> out = new Hashtable<String, Double>();
 		for (WordClassFloatCount fc : LIWC_Values) {
 			Double oldValue = out.put(dict.getClassName(fc.classId),fc.countFloat);
 			if (oldValue != null) console.warning(String.format("Duplicate class %s (id %d) with values %f (new) and %f (old) !?",dict.getClassName(fc.classId),fc.classId,fc.countFloat,oldValue));
-			System.out.print(fc);
 		}
 		
 //		System.out.println();

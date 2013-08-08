@@ -259,6 +259,7 @@ public class DocumentTopicsToCSVFile extends AbstractExecutableComponent {
                 //Arrays.sort(sortedTopics);
 
                 writer.write(Integer.toString(docNum++) + _separator); // doc_id
+                //FIXME: this is a problem if the name can have commas or double quotes in it! Use csv classes...
                 writer.write(ta.instance.getName().toString()); // doc_name
 
                 for (int i = 0, iMax = sortedTopics.length; i < iMax; i++) {

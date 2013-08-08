@@ -186,7 +186,7 @@ public class HTMLViewer extends AbstractExecutableComponent implements WebUIFrag
             _done = false;
 
             String webURL = getWebUIUrl(cc);
-            console.info("webUIUrl " + webURL);
+            console.info("webUIUrl " + webURL + " - donUrl /"+cc.getExecutionInstanceID() + "/?done=true");
 
             cc.startWebUIFragment(this);
 

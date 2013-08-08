@@ -94,7 +94,10 @@ import cc.mallet.types.InstanceList;
         description = "This component writes any data it receives to a file. Objects of type byte[] " +
         		"are written as is. Objects of type org.w3c.dom.Document are written as xml files. " +
         		"If " + StreamToFile.PROP_SERIALIZE_DATA + "is set to 'true', Objects that implement " +
-        		"java.io.Serializable are written as serialised data. Streams are ignored.",
+        		"java.io.Serializable are written as serialised data. Streams are ignored. " +
+        		"The 'location' property is sent to the '"+Names.PORT_LOCATION+"' port once for each " +
+        		"data object received. This is somewhat of a hack, and does not treat streams in the " +
+        		"normal way!",
         dependency = {"protobuf-java-2.2.0.jar"}
 )
 public class StreamToFile extends AbstractExecutableComponent {
